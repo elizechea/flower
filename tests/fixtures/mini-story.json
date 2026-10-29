@@ -1,0 +1,38 @@
+{
+  "schemaVersion": 1,
+  "id": "mini",
+  "version": 1,
+  "title": "MINI",
+  "tagline": "Historia mínima de prueba.",
+  "difficulty": 1,
+  "estimatedMinutes": 1,
+  "players": { "min": 1, "max": 1 },
+  "start": "inicio",
+  "vars": { "energia": 2, "llave": false },
+  "nodes": {
+    "inicio": {
+      "text": ["Energía: {energia}.", "Hola, {nombre}."],
+      "options": [
+        { "id": "buscar", "label": "Buscar la llave", "to": "pasillo", "requires": { "llave": false }, "effects": [{ "set": "llave", "value": true }, { "dec": "energia" }] },
+        { "id": "puerta", "label": "Abrir la puerta", "to": "puente", "requires": { "llave": true }, "showLocked": true },
+        { "id": "saltar", "label": "Saltar al vacío", "to": "muerte", "requires": { "energia": { "gte": 5 } } }
+      ]
+    },
+    "pasillo": {
+      "text": "Un pasillo.",
+      "options": [
+        { "id": "volver", "label": "Volver", "to": "inicio" },
+        { "id": "puerta", "label": "Abrir la puerta", "to": "puente", "requires": { "llave": true } }
+      ]
+    },
+    "puente": {
+      "text": "El puente.",
+      "options": [
+        { "id": "rumbo", "label": "Fijar rumbo", "to": "casa", "requires": { "energia": { "gte": 1 } } },
+        { "id": "esclusa", "label": "Abrir la esclusa", "to": "muerte" }
+      ]
+    },
+    "casa": { "text": "Llegas.", "ending": { "type": "good", "title": "A CASA" } },
+    "muerte": { "text": "Mueres.", "ending": { "type": "bad", "title": "VACÍO" } }
+  }
+}
