@@ -1,0 +1,27 @@
+<!doctype html>
+<html lang="es">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <meta name="theme-color" content="#030a03">
+  <title>TERMINAL</title>
+  <link rel="manifest" href="manifest.webmanifest">
+  <link rel="stylesheet" href="css/base.css">
+  <link rel="stylesheet" href="css/crt.css">
+  <script type="module" src="js/main.js"></script>
+</head>
+<body>
+  <div id="app">
+    <header id="topbar">
+      <h1 id="title">TERMINAL</h1>
+      <button id="menu-btn" type="button" aria-label="Abrir menú">[☰]</button>
+    </header>
+    <main id="screen">
+      <div id="log" role="log" aria-live="polite"></div>
+    </main>
+    <nav id="options" aria-label="Opciones"></nav>
+    <div id="menu" role="dialog" aria-modal="true" aria-label="Menú" hidden></div>
+  </div>
+  <div id="crt" aria-hidden="true"></div>
+</body>
+</html>
