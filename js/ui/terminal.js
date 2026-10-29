@@ -8,6 +8,7 @@ const wait = (ms) => new Promise((r) => setTimeout(r, ms));
 
 export function createTerminal({ log, options, screen, getSpeed = () => 'normal' }) {
   let current = null; // typewriter en curso
+  let skipped = false; // tras saltar, el resto del nodo sale al instante (hasta que aparezcan botones)
 
   const scroll = () => { screen.scrollTop = screen.scrollHeight; };
   const setTyping = (on) => { document.body.dataset.typing = on ? '1' : '0'; };
@@ -37,7 +38,7 @@ export function createTerminal({ log, options, screen, getSpeed = () => 'normal'
     p.append(sr, vis);
     setTyping(true);
     const tw = typewrite(text, {
-      charDelay: Math.round(SPEED_MS[getSpeed()] * factor),
+      charDelay: skipped ? 0 : Math.round(SPEED_MS[getSpeed()] * factor),
       onChar(ch) { vis.textContent += ch; audio.blip(ch); scroll(); },
       onSkip(rest) { vis.textContent += rest; scroll(); },
     });
@@ -51,6 +52,7 @@ export function createTerminal({ log, options, screen, getSpeed = () => 'normal'
   }
 
   function buttons(items) {
+    skipped = false;
     options.replaceChildren();
     items.forEach((it, i) => {
       const b = document.createElement('button');
@@ -72,14 +74,15 @@ export function createTerminal({ log, options, screen, getSpeed = () => 'normal'
       log.replaceChildren();
       options.replaceChildren();
     },
-    cancel() { current?.cancel(); current = null; setTyping(false); },
-    skip() { current?.skip(); },
+    cancel() { current?.cancel(); current = null; skipped = false; setTyping(false); },
+    skip() { if (current) { skipped = true; current.skip(); } },
     isTyping: () => current !== null,
     type,
     print: (text, cls = 'txt') => line(cls, text),
     notice: (text) => line('notice', text),
     echo: (label, instant) => (instant ? line('echo', label) : type(label, 'echo', 0.5)),
     async processing(ms = 400) {
+      skipped = false; // frontera entre el eco saltado y el nodo siguiente, que sí se teclea
       const p = line('processing', t('ui.processing'));
       const dots = setInterval(() => { p.textContent += '.'; }, ms / 4);
       await wait(ms);
