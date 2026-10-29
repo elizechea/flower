@@ -5,6 +5,8 @@ const strings = {
   start: '[ TOCA PARA INICIAR ]',
   home: {
     continue: 'CONTINUAR',
+    minutes: '{n} min',
+    decisions: '{n} decisiones',
   },
   menu: {
     continue: 'Continuar',
@@ -20,6 +22,7 @@ const strings = {
     copyLink: 'Copiar enlace de la partida',
     invite: 'Invitar jugadores — próximamente',
     about: 'Acerca de',
+    aboutText: 'TERMINAL — aventura conversacional retro. Sin servidor: las historias son ficheros JSON y la partida vive en la URL. Fuente VT323 (OFL).',
   },
   ending: {
     good: 'FINAL BUENO',

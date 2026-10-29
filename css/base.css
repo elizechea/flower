@@ -62,7 +62,18 @@ html, body {
 }
 
 #log { white-space: pre-wrap; overflow-wrap: anywhere; }
+#log p { margin: 0 0 .6em; }
+#log .big { font-size: 1.6em; letter-spacing: .12em; }
+#log .echo, #log .notice, #log .processing, .st-meta, #menu .about, #menu .msg { color: var(--fg-dim); }
+#log .hdr { margin-top: 1em; letter-spacing: .1em; }
+.stories { display: flex; flex-direction: column; gap: 8px; }
+.stories button { width: 100%; display: flex; flex-direction: column; gap: 2px; }
+.stories .st-title { letter-spacing: .06em; }
+.stories .st-meta, .stories .st-tag { font-size: .8em; }
 
+.sr-only { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; }
+
+#options:empty { display: none; }
 #options {
   flex: none;
   display: flex;
@@ -106,6 +117,8 @@ button:disabled { opacity: .5; cursor: default; }
   z-index: 10;
 }
 #menu[hidden] { display: none; }
+#menu button { display: block; width: 100%; margin-bottom: 8px; }
+#menu p { margin: .5em 0; }
 
 .cursor::after { content: "█"; animation: blink 1s steps(1) infinite; }
 

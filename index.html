@@ -6,6 +6,9 @@
   <meta name="theme-color" content="#030a03">
   <title>TERMINAL</title>
   <link rel="manifest" href="manifest.webmanifest">
+  <link rel="icon" href="icons/icon.svg" type="image/svg+xml">
+  <link rel="icon" href="icons/icon-192.png" type="image/png" sizes="192x192">
+  <link rel="apple-touch-icon" href="icons/apple-touch-icon.png">
   <link rel="stylesheet" href="css/base.css">
   <link rel="stylesheet" href="css/crt.css">
   <script type="module" src="js/main.js"></script>
@@ -13,15 +16,15 @@
 <body>
   <div id="app">
     <header id="topbar">
-      <h1 id="title">TERMINAL</h1>
-      <button id="menu-btn" type="button" aria-label="Abrir menú">[☰]</button>
+      <h1 id="title" data-testid="title">TERMINAL</h1>
+      <button id="menu-btn" type="button" aria-label="Abrir menú" data-testid="menu-btn">[☰]</button>
     </header>
     <main id="screen">
       <div id="log" role="log" aria-live="polite"></div>
     </main>
     <nav id="options" aria-label="Opciones"></nav>
-    <div id="menu" role="dialog" aria-modal="true" aria-label="Menú" hidden></div>
   </div>
+  <div id="menu" role="dialog" aria-modal="true" aria-label="Menú" hidden></div>
   <div id="crt" aria-hidden="true"></div>
 </body>
 </html>
