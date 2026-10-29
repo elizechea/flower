@@ -1,6 +1,6 @@
 // Session persistence (log of choices), index, endings, settings, URL log codec. No DOM.
-const SPEEDS = ['slow', 'normal', 'fast', 'instant'];
-export const DEFAULT_SETTINGS = { sound: true, speed: 'normal' };
+const SPEEDS = ['veryslow', 'slow', 'normal', 'fast', 'instant'];
+export const DEFAULT_SETTINGS = { sound: true, speed: 'veryslow' };
 
 export function newSessionId() {
   const b = new Uint8Array(9);

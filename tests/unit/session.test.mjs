@@ -78,9 +78,9 @@ test('endings: unique', () => {
 
 test('settings: defaults, patch, invalid values', () => {
   const st = createSessionStore(createStorage(fakeLS()));
-  assert.deepEqual(st.getSettings(), { sound: true, speed: 'normal' });
+  assert.deepEqual(st.getSettings(), { sound: true, speed: 'veryslow' });
   assert.deepEqual(st.saveSettings({ speed: 'fast' }), { sound: true, speed: 'fast' });
-  assert.equal(st.saveSettings({ speed: 'warp' }).speed, 'normal');
+  assert.equal(st.saveSettings({ speed: 'warp' }).speed, 'veryslow');
   assert.equal(st.saveSettings({ sound: false }).sound, false);
 });
 

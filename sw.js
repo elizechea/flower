@@ -1,6 +1,6 @@
 // Service worker: app shell cache-first, historias stale-while-revalidate.
 // Al añadir/quitar ficheros del shell, actualizar SHELL y subir VERSION.
-const VERSION = 'terminal-v2';
+const VERSION = 'terminal-v3';
 const SHELL = [
   './', 'index.html', 'manifest.webmanifest',
   'css/base.css', 'css/crt.css',

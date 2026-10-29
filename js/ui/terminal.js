@@ -3,10 +3,10 @@ import { typewrite } from './typewriter.js';
 import * as audio from '../audio/blip.js';
 import { t } from '../i18n/es.js';
 
-const SPEED_MS = { slow: 55, normal: 28, fast: 12, instant: 0 };
+const SPEED_MS = { veryslow: 90, slow: 55, normal: 28, fast: 12, instant: 0 };
 const wait = (ms) => new Promise((r) => setTimeout(r, ms));
 
-export function createTerminal({ log, options, screen, getSpeed = () => 'normal' }) {
+export function createTerminal({ log, options, screen, getSpeed = () => 'veryslow' }) {
   let current = null; // typewriter en curso
   let skipped = false; // tras saltar, el resto del nodo sale al instante (hasta que aparezcan botones)
 
@@ -28,7 +28,7 @@ export function createTerminal({ log, options, screen, getSpeed = () => 'normal'
 
   // Teclea `text` en una línea nueva. El texto completo va en un span oculto visualmente
   // para que el lector de pantalla lo tenga entero desde el principio. Devuelve null si se canceló.
-  async function type(text, cls = 'txt', factor = 1) {
+  async function type(text, cls = 'txt', factor = 1, sound = audio.blip) {
     const p = line(cls);
     const sr = document.createElement('span');
     sr.className = 'sr-only';
@@ -40,7 +40,7 @@ export function createTerminal({ log, options, screen, getSpeed = () => 'normal'
     let finished = false; // cancel() resuelve `done` sin llamar a onDone
     const tw = typewrite(text, {
       charDelay: skipped ? 0 : Math.round(SPEED_MS[getSpeed()] * factor),
-      onChar(ch) { vis.textContent += ch; audio.blip(ch); scroll(); },
+      onChar(ch) { vis.textContent += ch; sound(ch); scroll(); },
       onSkip(rest) { vis.textContent += rest; scroll(); },
       onDone() { finished = true; },
     });
@@ -82,7 +82,7 @@ export function createTerminal({ log, options, screen, getSpeed = () => 'normal'
     type,
     print: (text, cls = 'txt') => line(cls, text),
     notice: (text) => line('notice', text),
-    echo: (label, instant) => (instant ? line('echo', label) : type(label, 'echo', 0.5)),
+    echo: (label, instant) => (instant ? line('echo', label) : type(label, 'echo', 1.5, audio.keypress)),
     async processing(ms = 400) {
       skipped = false; // frontera entre el eco saltado y el nodo siguiente, que sí se teclea
       const p = line('processing', t('ui.processing'));

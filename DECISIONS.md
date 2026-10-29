@@ -55,7 +55,7 @@ Decisiones tomadas donde el spec era ambiguo o no decía nada, agrupadas por ár
 - `charDelay <= 0` completa en el acto y de forma síncrona y llama `onDone`.
 - `cancel()` resuelve la promesa `done` pero no llama `onDone`; `skip` y `cancel` son idempotentes y no hacen nada tras terminar.
 - El texto se itera con `Array.from` (puntos de código) para no partir emojis.
-- Velocidades: lenta 55 ms, normal 28 ms, rápida 12 ms, instantánea 0 ms por carácter; el eco `> opción` y la línea FIN usan la mitad del retardo.
+- Velocidades: muy lenta 90 ms (por defecto, a petición del usuario), lenta 55 ms, normal 28 ms, rápida 12 ms, instantánea 0 ms por carácter. El eco `> opción` del jugador va a 1,5× el retardo con sonido de tecla propio; la línea FIN usa la mitad.
 
 ## Router
 
@@ -68,7 +68,7 @@ Decisiones tomadas donde el spec era ambiguo o no decía nada, agrupadas por ár
 - El silencio vive solo en memoria en `blip.js`; su persistencia es el ajuste `sound` de `terminal:v1:settings` (main.js y el menú llaman a `setMuted`). No hay clave `terminal:muted`.
 - El `AudioContext` (`globalThis.AudioContext || globalThis.webkitAudioContext`) se crea únicamente en `unlock()`, en el primer gesto del usuario; antes de ese gesto `blip`/`tone` no hacen nada (ni se encola sonido ni Chrome avisa en consola).
 - Polifonía: máx. 6 blips de tecleo vivos y mínimo 20 ms entre blips; los efectos no cuentan para ese tope.
-- Blip: square, 1800-2600 Hz con variación ±8 %, 30-45 ms, ataque 2 ms, decay exponencial, ganancia 0,05. `blip(ch)` ignora cadenas vacías o de solo espacios; si no recibe un string, suena.
+- Blip (cambiado a petición del usuario, para sonar a ordenador de los 80): square a 900-1300 Hz con variación ±8 % y una pequeña caída de tono, 35-45 ms, ataque 2 ms, decay exponencial, ganancia 0,09. Lo que teclea el jugador usa `keypress()`: un golpe grave (~220→90 Hz) más un chasquido agudo corto, como una tecla mecánica. El eco del jugador se pinta en verde claro nítido (`--fg-echo`), sin el brillo difuso. `blip(ch)` ignora cadenas vacías o de solo espacios; si no recibe un string, suena.
 - click: square 600 Hz, 50 ms; `navigator.vibrate(5)` solo si no está silenciado y existe.
 - optionsAppear: dos blips (2000 y 2400 Hz) separados 70 ms. goodEnding: arpegio triangle 523, 659, 784 y 1047 Hz cada 120 ms. badEnding: sawtooth de 220 a 55 Hz en 0,7 s.
 
@@ -78,7 +78,7 @@ Decisiones tomadas donde el spec era ambiguo o no decía nada, agrupadas por ár
 - La API es una factoría `createSessionStore(storage, clock)` para inyectar storage y reloj.
 - Si localStorage falla al escribir (cuota), se pasa `isPersistent=false` y el valor se guarda en memoria; las lecturas miran primero la memoria.
 - El índice guarda `{id, storyId, updatedAt}`, de más nueva a más antigua. `saveSession` conserva `createdAt`; `updatedAt` sale del reloj inyectado.
-- Ajustes: velocidad inválida cae a `normal`; sound inválido cae a `true`.
+- Ajustes: velocidad inválida cae a `veryslow`; sound inválido cae a `true`.
 - `encodeLog` devuelve `''` para log vacío y usa formato plano si cabe en 120 caracteres, solo tiene `[A-Za-z0-9_-]` y no hay puntos en los ids; si no, `b64~` + base64url(JSON). `decodeLog` devuelve null si es inválida (no lanza); `''` da `[]`.
 - `newSessionId` genera 9 caracteres base36 (`byte % 36`, sesgo mínimo aceptado).
 - Al restaurar se intenta siempre el replay del log, aunque el `storyVersion` guardado no coincida (spec §6: solo si el replay falla se avisa, se borra la sesión y se ofrece reiniciar). Si la versión difiere y el replay funciona, la sesión se vuelve a guardar con la versión actual.
@@ -107,7 +107,7 @@ Decisiones tomadas donde el spec era ambiguo o no decía nada, agrupadas por ár
 - Flicker en `#app` con opacidad 0,97-1; curvatura solo con `border-radius` + `box-shadow` inset, sin transform.
 - `prefers-reduced-motion` desactiva cursor parpadeante, animación de opciones y flicker; el tecleo se mantiene y se puede elegir 'instantánea'.
 - `#options` con `max-height: 55dvh` y scroll interno. Color extra `--fg-dim` (#1f9940).
-- Menú: la velocidad es un único botón que rota lenta → normal → rápida → instantánea; el sonido es un botón ON/OFF.
+- Menú: el primer botón es «[ X ] Salir del menú» (sustituye a «Continuar»; también cierra con Esc). La velocidad es un único botón que rota muy lenta → lenta → normal → rápida → instantánea; el sonido es un botón ON/OFF.
 - Tocar la pantalla (o Espacio/Enter) completa al instante el nodo entero (párrafos restantes y bloque FIN); saltar el eco no afecta al nodo siguiente.
 - `terminal.type()` devuelve `null` si se canceló (cambio de vista); `ending()` sale entonces sin añadir la etiqueta ni sonar.
 - Finales neutrales usan el arpegio de final bueno y la etiqueta FINAL NEUTRO. Al restaurar un final ya alcanzado no suena ni se teclea la línea FIN. Si la etiqueta ya empieza por `>` no se antepone otro `> `.

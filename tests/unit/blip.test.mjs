@@ -44,7 +44,7 @@ test('blip: ignora espacios y saltos, rango de frecuencia y duración', async ()
   for (let i = 0; i < 50; i++) { a.blip('a'); FakeCtx.last.currentTime += 0.05; FakeCtx.last.oscs.at(-1).onended(); }
   for (const o of FakeCtx.last.oscs) {
     assert.equal(o.type, 'square');
-    assert.ok(o.freqs[0] >= 1800 * 0.92 - 1 && o.freqs[0] <= 2600 * 1.08 + 1);
+    assert.ok(o.freqs[0] >= 900 * 0.92 - 1 && o.freqs[0] <= 1300 * 1.08 + 1);
   }
 });
 
@@ -81,6 +81,17 @@ test('efectos: doble blip, arpegio, final malo, click con vibrate', async () => 
   a.click();
   assert.equal(v, 1);
   assert.ok(FakeCtx.last.oscs.at(-1).freqs[0] < 1000);
+});
+
+test('keypress: tecla del jugador grave + chasquido, ignora espacios', async () => {
+  const a = await fresh();
+  a.keypress(' ');
+  assert.equal(FakeCtx.last.oscs.length, 0);
+  a.keypress('a');
+  assert.equal(FakeCtx.last.oscs.length, 2);
+  assert.ok(FakeCtx.last.oscs[0].freqs[0] < 300);
+  a.setMuted(true); FakeCtx.last.currentTime += 0.05; a.keypress('b');
+  assert.equal(FakeCtx.last.oscs.length, 2);
 });
 
 test('webkitAudioContext como alternativa', async () => {

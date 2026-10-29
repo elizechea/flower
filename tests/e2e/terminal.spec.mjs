@@ -266,18 +266,18 @@ test('9. flujo completo con menú y teclado, sin errores de consola', async ({ p
   await page.keyboard.press('Escape');
   await expect(page.locator('body')).toHaveAttribute('data-menu', '1');
   await expect(page.locator('#menu button')).toHaveText([
-    'Continuar', 'Reiniciar partida', 'Cambiar de historia', 'Sonido ON', 'Velocidad de texto: Instantánea',
+    '[ X ] Salir del menú', 'Reiniciar partida', 'Cambiar de historia', 'Sonido ON', 'Velocidad de texto: Instantánea',
     'Copiar enlace de la partida', 'Invitar jugadores — próximamente', 'Acerca de',
   ]);
   await expect(page.getByTestId('menu-invite')).toBeDisabled();
   await page.getByTestId('menu-sound').click();
   await expect(page.getByTestId('menu-sound')).toHaveText('Sonido OFF');
   await page.getByTestId('menu-speed').click();
-  await expect(page.getByTestId('menu-speed')).toHaveText('Velocidad de texto: Lenta');
+  await expect(page.getByTestId('menu-speed')).toHaveText('Velocidad de texto: Muy lenta');
   await page.getByTestId('menu-about').click();
   await expect(page.locator('#menu .about')).toContainText('TERMINAL');
-  expect(await page.evaluate((k) => JSON.parse(localStorage.getItem(k)).d, SETTINGS_KEY)).toEqual({ sound: false, speed: 'slow' });
-  await page.keyboard.press('Escape');
+  expect(await page.evaluate((k) => JSON.parse(localStorage.getItem(k)).d, SETTINGS_KEY)).toEqual({ sound: false, speed: 'veryslow' });
+  await page.getByTestId('menu-close').click();
   await expect(page.locator('#menu')).toBeHidden();
   await page.keyboard.press('1'); // elige la opción a; ahora teclea lento
   await expect(page.locator('body')).toHaveAttribute('data-typing', '1');

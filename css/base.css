@@ -10,6 +10,7 @@
   --bg: #030a03;
   --fg: #33ff66;
   --fg-dim: #1f9940;
+  --fg-echo: #c8ffd6;
   --font: "VT323", ui-monospace, monospace;
   --fs: clamp(20px, 5.6vw, 26px);
   --pad: 12px;
@@ -64,7 +65,8 @@ html, body {
 #log { white-space: pre-wrap; overflow-wrap: anywhere; }
 #log p { margin: 0 0 .6em; }
 #log .big { font-size: 1.6em; letter-spacing: .12em; }
-#log .echo, #log .notice, #log .processing, .st-meta, #menu .about, #menu .msg { color: var(--fg-dim); }
+#log .echo { color: var(--fg-echo); text-shadow: 0 0 1px var(--fg-echo); } /* lo que escribe el jugador: nítido y más brillante */
+#log .notice, #log .processing, .st-meta, #menu .about, #menu .msg { color: var(--fg-dim); }
 #log .hdr { margin-top: 1em; letter-spacing: .1em; }
 .stories { display: flex; flex-direction: column; gap: 8px; }
 .stories button { width: 100%; display: flex; flex-direction: column; gap: 2px; }

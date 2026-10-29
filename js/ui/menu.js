@@ -2,7 +2,7 @@
 import * as audio from '../audio/blip.js';
 import { t } from '../i18n/es.js';
 
-const SPEEDS = ['slow', 'normal', 'fast', 'instant'];
+const SPEEDS = ['veryslow', 'slow', 'normal', 'fast', 'instant'];
 const cap = (s) => s[0].toUpperCase() + s.slice(1);
 
 export function createMenu({ el, app, store, getGame }) {
@@ -37,7 +37,7 @@ export function createMenu({ el, app, store, getGame }) {
     el.replaceChildren();
     const s = store.getSettings();
     const game = getGame();
-    add('continue', t('menu.continue'), close);
+    add('close', t('menu.close'), close);
     if (game) add('restart', t('menu.restart'), () => { close(); game.restart(); });
     add('change-story', t('menu.changeStory'), () => { close(); location.hash = '#/'; });
     add('sound', s.sound ? t('menu.soundOn') : t('menu.soundOff'), () => {
