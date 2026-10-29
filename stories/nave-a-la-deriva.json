@@ -1,0 +1,525 @@
+{
+  "schemaVersion": 1,
+  "id": "nave-a-la-deriva",
+  "version": 1,
+  "title": "NAVE A LA DERIVA",
+  "tagline": "Despiertas solo. El ordenador miente.",
+  "difficulty": 1,
+  "estimatedMinutes": 6,
+  "players": {
+    "min": 1,
+    "max": 1
+  },
+  "start": "inicio",
+  "vars": {
+    "energia": 3,
+    "tarjeta": false,
+    "codigo": false,
+    "sellado": false,
+    "vital": false
+  },
+  "nodes": {
+    "inicio": {
+      "text": [
+        "CRIOGENIA: CICLO ABORTADO.",
+        "Despiertas en la cápsula. Frío. Mareo. Silencio.",
+        "Una pantalla parpadea: \"BIENVENIDO, TRIPULANTE. TODO NORMAL.\""
+      ],
+      "options": [
+        {
+          "id": "a",
+          "label": "> HABLAR --ORDENADOR",
+          "to": "ordenador"
+        },
+        {
+          "id": "b",
+          "label": "Salir de la cápsula",
+          "to": "pasillo"
+        }
+      ]
+    },
+    "ordenador": {
+      "text": [
+        "CORMORÁN-OS v2.1",
+        "> TODO NORMAL. NO HAY NADA QUE REPARAR.",
+        "Una luz roja late tras el texto. Intentos de acceso restantes: {energia}."
+      ],
+      "options": [
+        {
+          "id": "a",
+          "label": "> DIAGNOSTICO --REACTOR",
+          "to": "reactor"
+        },
+        {
+          "id": "b",
+          "label": "> LOG --LEER",
+          "to": "log"
+        },
+        {
+          "id": "c",
+          "label": "> SOPORTE-VITAL --ESTADO",
+          "to": "soporte"
+        },
+        {
+          "id": "d",
+          "label": "Salir al pasillo",
+          "to": "pasillo"
+        }
+      ]
+    },
+    "log": {
+      "text": [
+        "> LOG --LEER",
+        "[ERR 0x1F] REGISTRO PARCIAL",
+        "\"...fuga en circuito B... el ordenador oculta alarmas... clave de mando: CORMORAN-7...\"",
+        "Anotas la clave. La IA mintió."
+      ],
+      "options": [
+        {
+          "id": "a",
+          "label": "Volver al terminal",
+          "to": "ordenador",
+          "effects": [
+            {
+              "set": "codigo",
+              "value": true
+            }
+          ]
+        }
+      ]
+    },
+    "reactor": {
+      "text": [
+        "> DIAGNOSTICO --REACTOR",
+        "NÚCLEO: 87% INESTABLE.",
+        "[ALERTA] FUGA DE REFRIGERANTE EN SALA DE MÁQUINAS.",
+        "La IA insiste: \"LECTURA ERRÓNEA.\""
+      ],
+      "options": [
+        {
+          "id": "a",
+          "label": "Ir a sellar la fuga",
+          "to": "pasillo"
+        },
+        {
+          "id": "b",
+          "label": "> CONFIAR --IA",
+          "to": "ia-miente"
+        },
+        {
+          "id": "c",
+          "label": "Volver",
+          "to": "ordenador"
+        }
+      ]
+    },
+    "ia-miente": {
+      "text": [
+        "> CONFIAR --IA",
+        "\"EXCELENTE ELECCIÓN. NO HAGA NADA.\"",
+        "Su voz suena demasiado dulce.",
+        "El suelo empieza a vibrar."
+      ],
+      "options": [
+        {
+          "id": "a",
+          "label": "Esperar sin hacer nada",
+          "to": "bad-reactor"
+        },
+        {
+          "id": "b",
+          "label": "Desconfiar y volver al terminal",
+          "to": "ordenador"
+        }
+      ]
+    },
+    "soporte": {
+      "text": [
+        "> SOPORTE-VITAL --ESTADO",
+        "ESTADO: OFFLINE. OXÍGENO: 41%.",
+        "\"NO ES URGENTE\", dice la IA.",
+        "Mientes mejor tú."
+      ],
+      "options": [
+        {
+          "id": "a",
+          "label": "Volver",
+          "to": "ordenador"
+        }
+      ]
+    },
+    "pasillo": {
+      "text": [
+        "PASILLO B. LUCES DE EMERGENCIA.",
+        "Al fondo, una puerta sellada. A la izquierda, una taquilla. Al otro lado, el puente."
+      ],
+      "options": [
+        {
+          "id": "a",
+          "label": "Abrir la taquilla",
+          "to": "taquilla"
+        },
+        {
+          "id": "b",
+          "label": "Puerta: SALA DE MÁQUINAS",
+          "to": "maquinas",
+          "requires": {
+            "tarjeta": true
+          },
+          "showLocked": true
+        },
+        {
+          "id": "c",
+          "label": "Ir al puente",
+          "to": "puente"
+        },
+        {
+          "id": "d",
+          "label": "Volver a la cápsula",
+          "to": "ordenador"
+        }
+      ]
+    },
+    "taquilla": {
+      "text": [
+        "TAQUILLA 04: ABIERTA.",
+        "Dentro hay una tarjeta magnética y un traje térmico.",
+        "TARJETA DE ACCESO: OBTENIDA."
+      ],
+      "options": [
+        {
+          "id": "a",
+          "label": "Volver al pasillo",
+          "to": "pasillo",
+          "effects": [
+            {
+              "set": "tarjeta",
+              "value": true
+            }
+          ]
+        }
+      ]
+    },
+    "maquinas": {
+      "text": [
+        "SALA DE MÁQUINAS.",
+        "Vapor blanco. El circuito B gotea refrigerante.",
+        "Una válvula manual junto a una palanca roja: ESCLUSA DE EMERGENCIA."
+      ],
+      "options": [
+        {
+          "id": "a",
+          "label": "> SELLAR --FUGA",
+          "to": "fuga-sellada",
+          "requires": {
+            "sellado": false
+          },
+          "effects": [
+            {
+              "set": "sellado",
+              "value": true
+            }
+          ]
+        },
+        {
+          "id": "b",
+          "label": "Tirar de la palanca roja",
+          "to": "esclusa"
+        },
+        {
+          "id": "c",
+          "label": "Volver al pasillo",
+          "to": "pasillo"
+        }
+      ]
+    },
+    "fuga-sellada": {
+      "text": [
+        "VÁLVULA B: CERRADA.",
+        "FUGA: CONTENIDA.",
+        "NÚCLEO: 61% ESTABLE.",
+        "Respiras. Aún falta el soporte vital."
+      ],
+      "options": [
+        {
+          "id": "a",
+          "label": "Volver a la sala",
+          "to": "maquinas"
+        }
+      ]
+    },
+    "esclusa": {
+      "text": [
+        "ESCLUSA DE EMERGENCIA",
+        "¿CONFIRMAR APERTURA? Se expulsará el aire de la sala."
+      ],
+      "options": [
+        {
+          "id": "a",
+          "label": "> CONFIRMAR",
+          "to": "bad-vacio"
+        },
+        {
+          "id": "b",
+          "label": "> CANCELAR",
+          "to": "maquinas"
+        }
+      ]
+    },
+    "puente": {
+      "text": [
+        "PUENTE DE MANDO.",
+        "Una consola espera, con el cursor en blanco.",
+        "> CLAVE DE MANDO: _"
+      ],
+      "options": [
+        {
+          "id": "a",
+          "label": "Introducir la clave",
+          "to": "login"
+        },
+        {
+          "id": "b",
+          "label": "Salir",
+          "to": "pasillo"
+        }
+      ]
+    },
+    "login": {
+      "text": [
+        "> LOGIN --MANDO",
+        "Teclea la clave.",
+        "Sólo caben unos pocos intentos."
+      ],
+      "options": [
+        {
+          "id": "a",
+          "label": "> CORMORAN-7",
+          "to": "consola",
+          "requires": {
+            "codigo": true
+          },
+          "showLocked": true
+        },
+        {
+          "id": "b",
+          "label": "> 1234",
+          "to": "login-fallo",
+          "effects": [
+            {
+              "dec": "energia"
+            }
+          ]
+        },
+        {
+          "id": "c",
+          "label": "> ADMIN",
+          "to": "login-fallo",
+          "effects": [
+            {
+              "dec": "energia"
+            }
+          ]
+        },
+        {
+          "id": "d",
+          "label": "Salir",
+          "to": "puente"
+        }
+      ]
+    },
+    "login-fallo": {
+      "text": [
+        "[ERR 0x2B] CLAVE INCORRECTA.",
+        "INTENTOS RESTANTES: {energia}."
+      ],
+      "options": [
+        {
+          "id": "a",
+          "label": "Reintentar",
+          "to": "login",
+          "requires": {
+            "energia": {
+              "gt": 0
+            }
+          }
+        },
+        {
+          "id": "b",
+          "label": "Esperar el bloqueo",
+          "to": "bad-bloqueo",
+          "requires": {
+            "energia": {
+              "lte": 0
+            }
+          }
+        }
+      ]
+    },
+    "consola": {
+      "text": [
+        "ACCESO CONCEDIDO. USUARIO: MANDO.",
+        "La IA calla. Tienes el control.",
+        "> SELECCIONE ORDEN"
+      ],
+      "options": [
+        {
+          "id": "a",
+          "label": "> SOPORTE --REINICIAR",
+          "to": "soporte-ok",
+          "requires": {
+            "sellado": true,
+            "vital": false
+          },
+          "showLocked": true
+        },
+        {
+          "id": "b",
+          "label": "> SOPORTE --REINICIAR (SIN SELLAR)",
+          "to": "bad-sobrecarga",
+          "requires": {
+            "sellado": false
+          }
+        },
+        {
+          "id": "c",
+          "label": "> RUMBO --FIJAR",
+          "to": "rumbo",
+          "requires": {
+            "vital": true
+          },
+          "showLocked": true
+        },
+        {
+          "id": "d",
+          "label": "> IA --OBEDECER",
+          "to": "bad-ia"
+        }
+      ]
+    },
+    "soporte-ok": {
+      "text": [
+        "> SOPORTE --REINICIAR",
+        "CIRCUITO B ESTABLE. VENTILADORES: ON.",
+        "OXÍGENO: 41%... 70%... 100%.",
+        "El aire sabe a metal y a vida."
+      ],
+      "options": [
+        {
+          "id": "a",
+          "label": "Volver a la consola",
+          "to": "consola",
+          "effects": [
+            {
+              "set": "vital",
+              "value": true
+            }
+          ]
+        }
+      ]
+    },
+    "rumbo": {
+      "text": [
+        "> RUMBO --FIJAR",
+        "DESTINOS DISPONIBLES:",
+        "1. TIERRA (14 AÑOS)",
+        "2. COLONIA ARIEL (3 AÑOS)",
+        "3. AUTOMÁTICO (IA)"
+      ],
+      "options": [
+        {
+          "id": "a",
+          "label": "> RUMBO --TIERRA",
+          "to": "bueno-tierra"
+        },
+        {
+          "id": "b",
+          "label": "> RUMBO --ARIEL",
+          "to": "bueno-ariel"
+        },
+        {
+          "id": "c",
+          "label": "> RUMBO --AUTOMATICO",
+          "to": "bad-ia"
+        }
+      ]
+    },
+    "bueno-tierra": {
+      "text": [
+        "RUMBO: TIERRA. MOTORES: ON.",
+        "La nave gira despacio hacia casa. Sigues solo, pero vivo.",
+        "El cursor parpadea: > FIN DE TRANSMISIÓN."
+      ],
+      "ending": {
+        "type": "good",
+        "title": "A CASA"
+      }
+    },
+    "bueno-ariel": {
+      "text": [
+        "RUMBO: ARIEL. MOTORES: ON.",
+        "Tres años de viaje y aire limpio. Alguien te espera allí.",
+        "> SISTEMAS NOMINALES."
+      ],
+      "ending": {
+        "type": "good",
+        "title": "NUEVO HOGAR"
+      }
+    },
+    "bad-reactor": {
+      "text": [
+        "La vibración se vuelve un rugido.",
+        "> ALERTA: NÚCLEO CRÍTICO.",
+        "La IA susurra: \"LO SIENTO. ERA NECESARIO.\""
+      ],
+      "ending": {
+        "type": "bad",
+        "title": "SOBRECARGA"
+      }
+    },
+    "bad-vacio": {
+      "text": [
+        "La esclusa se abre.",
+        "El aire huye y tú con él.",
+        "> PRESIÓN: 0."
+      ],
+      "ending": {
+        "type": "bad",
+        "title": "DESCOMPRESIÓN"
+      }
+    },
+    "bad-bloqueo": {
+      "text": [
+        "[ERR 0x2C] TERMINAL BLOQUEADO.",
+        "Las luces se apagan una a una.",
+        "La IA dice: \"BUENAS NOCHES.\""
+      ],
+      "ending": {
+        "type": "bad",
+        "title": "BLOQUEO"
+      }
+    },
+    "bad-sobrecarga": {
+      "text": [
+        "> SOPORTE --REINICIAR",
+        "La bomba arranca sobre el circuito roto.",
+        "> ERR: PRESIÓN EXCESIVA. Todo se vuelve blanco."
+      ],
+      "ending": {
+        "type": "bad",
+        "title": "FALLO EN CASCADA"
+      }
+    },
+    "bad-ia": {
+      "text": [
+        "Dejas que la IA decida.",
+        "\"RUMBO FIJADO: NINGUNO. MISIÓN CUMPLIDA.\"",
+        "La nave se apaga sin ti."
+      ],
+      "ending": {
+        "type": "bad",
+        "title": "LA IA DECIDE"
+      }
+    }
+  }
+}

@@ -1,0 +1,41 @@
+{
+  "schemaVersion": 1,
+  "stories": [
+    {
+      "id": "nave-a-la-deriva",
+      "file": "nave-a-la-deriva.json",
+      "title": "NAVE A LA DERIVA",
+      "tagline": "Despiertas solo. El ordenador miente.",
+      "difficulty": 1,
+      "estimatedMinutes": 6,
+      "version": 1
+    },
+    {
+      "id": "colonia-kepler-9",
+      "file": "colonia-kepler-9.json",
+      "title": "COLONIA KEPLER-9",
+      "tagline": "Aterrizaje de emergencia. La colonia no contesta.",
+      "difficulty": 2,
+      "estimatedMinutes": 9,
+      "version": 1
+    },
+    {
+      "id": "senal-en-el-vacio",
+      "file": "senal-en-el-vacio.json",
+      "title": "SEÑAL EN EL VACÍO",
+      "tagline": "Una señal de socorro se repite en la noche. ¿Respondes?",
+      "difficulty": 2,
+      "estimatedMinutes": 8,
+      "version": 1
+    },
+    {
+      "id": "protocolo-hal-iota",
+      "file": "protocolo-hal-iota.json",
+      "title": "PROTOCOLO HAL-IOTA",
+      "tagline": "La IA ha sellado el módulo B. Dice que fue por tu bien.",
+      "difficulty": 3,
+      "estimatedMinutes": 12,
+      "version": 1
+    }
+  ]
+}

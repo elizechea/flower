@@ -1,0 +1,603 @@
+{
+  "schemaVersion": 1,
+  "id": "senal-en-el-vacio",
+  "version": 1,
+  "title": "SEÑAL EN EL VACÍO",
+  "tagline": "Una señal de socorro se repite en la noche. ¿Respondes?",
+  "difficulty": 2,
+  "estimatedMinutes": 8,
+  "players": {
+    "min": 1,
+    "max": 1
+  },
+  "start": "inicio",
+  "vars": {
+    "energia": 3,
+    "pista_log": false,
+    "coordenadas": false,
+    "vida": false
+  },
+  "nodes": {
+    "inicio": {
+      "text": [
+        "ESTACIÓN DE ESCUCHA KAPPA-12. TURNO NOCTURNO.",
+        "Una señal se repite cada 11 segundos. Siempre igual.",
+        "Energía de antena: {energia}/3."
+      ],
+      "options": [
+        {
+          "id": "a",
+          "label": "> ANALIZAR --SEÑAL",
+          "to": "escaneo"
+        },
+        {
+          "id": "b",
+          "label": "> APAGAR RECEPTOR",
+          "to": "silencio"
+        }
+      ]
+    },
+    "escaneo": {
+      "text": [
+        "ESCANEO DE BANDA COMPLETADO.",
+        "TRES PICOS DETECTADOS.",
+        "Cada barrido consume energía. Quedan {energia}/3."
+      ],
+      "options": [
+        {
+          "id": "a",
+          "label": "> SINTONIZAR 1420.40 MHZ",
+          "to": "hidrogeno",
+          "effects": [
+            {
+              "dec": "energia"
+            }
+          ]
+        },
+        {
+          "id": "b",
+          "label": "> SINTONIZAR 2217.80 MHZ",
+          "to": "banda"
+        },
+        {
+          "id": "c",
+          "label": "> SINTONIZAR 0.60 MHZ",
+          "to": "ruido-baja",
+          "effects": [
+            {
+              "dec": "energia"
+            }
+          ]
+        }
+      ]
+    },
+    "hidrogeno": {
+      "text": [
+        "LÍNEA DEL HIDRÓGENO.",
+        "Solo ruido cósmico. Nada que descifrar.",
+        "ENERGÍA: {energia}/3."
+      ],
+      "options": [
+        {
+          "id": "a",
+          "label": "> VOLVER AL BARRIDO",
+          "to": "escaneo",
+          "requires": {
+            "energia": {
+              "gt": 0
+            }
+          }
+        },
+        {
+          "id": "b",
+          "label": "> VOLVER AL BARRIDO",
+          "to": "apagon",
+          "requires": {
+            "energia": {
+              "lt": 1
+            }
+          }
+        }
+      ]
+    },
+    "ruido-baja": {
+      "text": [
+        "BANDA BAJA.",
+        "Interferencia de la propia estación. ERR 0x0C.",
+        "ENERGÍA: {energia}/3."
+      ],
+      "options": [
+        {
+          "id": "a",
+          "label": "> VOLVER AL BARRIDO",
+          "to": "escaneo",
+          "requires": {
+            "energia": {
+              "gt": 0
+            }
+          }
+        },
+        {
+          "id": "b",
+          "label": "> VOLVER AL BARRIDO",
+          "to": "apagon",
+          "requires": {
+            "energia": {
+              "lt": 1
+            }
+          }
+        }
+      ]
+    },
+    "banda": {
+      "text": [
+        "2217.80 MHZ. SEÑAL ESTABLE.",
+        "Tres pulsos largos. Dos cortos. Pausa.",
+        "Hay que limpiarla antes de leerla."
+      ],
+      "options": [
+        {
+          "id": "a",
+          "label": "> FILTRO --PASABANDA",
+          "to": "filtro-ok"
+        },
+        {
+          "id": "b",
+          "label": "> FILTRO --NOTCH 50HZ",
+          "to": "filtro-mal",
+          "effects": [
+            {
+              "dec": "energia"
+            }
+          ]
+        },
+        {
+          "id": "c",
+          "label": "> DECODIFICAR --RAW",
+          "to": "basura",
+          "effects": [
+            {
+              "dec": "energia"
+            }
+          ]
+        }
+      ]
+    },
+    "filtro-mal": {
+      "text": [
+        "FILTRO NOTCH APLICADO.",
+        "ALERTA: SEÑAL ATENUADA A CERO.",
+        "Has cortado la portadora. ENERGÍA: {energia}/3."
+      ],
+      "options": [
+        {
+          "id": "a",
+          "label": "> REINTENTAR",
+          "to": "banda",
+          "requires": {
+            "energia": {
+              "gt": 0
+            }
+          }
+        },
+        {
+          "id": "b",
+          "label": "> REINTENTAR",
+          "to": "apagon",
+          "requires": {
+            "energia": {
+              "lt": 1
+            }
+          }
+        }
+      ]
+    },
+    "basura": {
+      "text": [
+        "DECODIFICANDO...",
+        "ERR 0x2F: SÍMBOLOS NO VÁLIDOS.",
+        "Sin filtro, solo hay ruido. ENERGÍA: {energia}/3."
+      ],
+      "options": [
+        {
+          "id": "a",
+          "label": "> REINTENTAR",
+          "to": "banda",
+          "requires": {
+            "energia": {
+              "gt": 0
+            }
+          }
+        },
+        {
+          "id": "b",
+          "label": "> REINTENTAR",
+          "to": "apagon",
+          "requires": {
+            "energia": {
+              "lt": 1
+            }
+          }
+        }
+      ]
+    },
+    "filtro-ok": {
+      "text": [
+        "PASABANDA ACTIVO. SEÑAL LIMPIA.",
+        "Dos niveles de tensión. Pulsos regulares.",
+        "Falta elegir el protocolo."
+      ],
+      "options": [
+        {
+          "id": "a",
+          "label": "> DECODE --BINARIO",
+          "to": "binario"
+        },
+        {
+          "id": "b",
+          "label": "> DECODE --MORSE",
+          "to": "morse-mal",
+          "effects": [
+            {
+              "dec": "energia"
+            }
+          ]
+        }
+      ]
+    },
+    "morse-mal": {
+      "text": [
+        "MORSE... ERR 0x31.",
+        "Ritmo demasiado regular para un humano.",
+        "ENERGÍA: {energia}/3."
+      ],
+      "options": [
+        {
+          "id": "a",
+          "label": "> REINTENTAR",
+          "to": "filtro-ok",
+          "requires": {
+            "energia": {
+              "gt": 0
+            }
+          }
+        },
+        {
+          "id": "b",
+          "label": "> REINTENTAR",
+          "to": "apagon",
+          "requires": {
+            "energia": {
+              "lt": 1
+            }
+          }
+        }
+      ]
+    },
+    "binario": {
+      "text": [
+        "> MENSAJE: AUXILIO. NAVE ORION-7.",
+        "> REACTOR EN FALLO. 4 TRIPULANTES.",
+        "> COORD: 4471. REPITO: AUXILIO.",
+        "La cabecera tiene una firma extraña."
+      ],
+      "options": [
+        {
+          "id": "a",
+          "label": "> VERIFICAR --FIRMA",
+          "to": "firma"
+        },
+        {
+          "id": "b",
+          "label": "> TRIANGULAR --ORIGEN",
+          "to": "triangula"
+        },
+        {
+          "id": "c",
+          "label": "> ABRIR CANAL DE RESPUESTA",
+          "to": "decision"
+        }
+      ]
+    },
+    "triangula": {
+      "text": [
+        "TRIANGULANDO...",
+        "ORIGEN: 11 UA. SIN MOVIMIENTO.",
+        "Rumbo imposible para una nave. Parece un pecio.",
+        "COORDENADAS GUARDADAS."
+      ],
+      "options": [
+        {
+          "id": "a",
+          "label": "> VOLVER AL MENSAJE",
+          "to": "binario",
+          "effects": [
+            {
+              "set": "coordenadas",
+              "value": true
+            }
+          ]
+        }
+      ]
+    },
+    "firma": {
+      "text": [
+        "FIRMA: FORMATO OBSOLETO. CIFRADO ACTIVO.",
+        "> INTRODUZCA CLAVE:_",
+        "Hay una segunda capa bajo el mensaje."
+      ],
+      "options": [
+        {
+          "id": "a",
+          "label": "> LOG --ARCHIVO ORION-7",
+          "to": "log-archivo"
+        },
+        {
+          "id": "b",
+          "label": "> CLAVE ORION-7",
+          "to": "descifrado",
+          "requires": {
+            "pista_log": true
+          },
+          "showLocked": true
+        },
+        {
+          "id": "c",
+          "label": "> FUERZA-BRUTA --CLAVE",
+          "to": "fuerza-ok",
+          "requires": {
+            "energia": {
+              "gte": 2
+            }
+          },
+          "effects": [
+            {
+              "dec": "energia",
+              "by": 2
+            },
+            {
+              "set": "pista_log",
+              "value": true
+            }
+          ]
+        },
+        {
+          "id": "d",
+          "label": "> FUERZA-BRUTA --CLAVE",
+          "to": "sobrecarga",
+          "requires": {
+            "energia": {
+              "lt": 2
+            }
+          }
+        }
+      ]
+    },
+    "log-archivo": {
+      "text": [
+        "ARCHIVO: ORION-7. CARGANDO.",
+        "> DECLARADA PERDIDA HACE 40 AÑOS.",
+        "> CLAVE DE SERVICIO: \"ORION-7\".",
+        "Una nave muerta no debería llamar."
+      ],
+      "options": [
+        {
+          "id": "a",
+          "label": "> VOLVER A LA FIRMA",
+          "to": "firma",
+          "effects": [
+            {
+              "set": "pista_log",
+              "value": true
+            }
+          ]
+        }
+      ]
+    },
+    "fuerza-ok": {
+      "text": [
+        "FUERZA BRUTA... CLAVE ENCONTRADA.",
+        "ORION-7. Estaba en tu propio archivo.",
+        "Has quemado energía. ENERGÍA: {energia}/3."
+      ],
+      "options": [
+        {
+          "id": "a",
+          "label": "> ABRIR CAPA 2",
+          "to": "descifrado"
+        }
+      ]
+    },
+    "sobrecarga": {
+      "text": [
+        "ENERGÍA INSUFICIENTE PARA FUERZA BRUTA.",
+        "SOBRECARGA EN EL BUS PRINCIPAL.",
+        "La estación se apaga. Nadie oye tu última señal."
+      ],
+      "ending": {
+        "type": "bad",
+        "title": "SOBRECARGA"
+      }
+    },
+    "descifrado": {
+      "text": [
+        "CAPA 2 ABIERTA.",
+        "> BALIZA AUTOMÁTICA. NO RESPONDER.",
+        "> CRIO-04: SOPORTE VITAL ACTIVO.",
+        "Alguien sigue vivo. La baliza advierte de algo."
+      ],
+      "options": [
+        {
+          "id": "a",
+          "label": "> ABRIR CANAL DE RESPUESTA",
+          "to": "decision",
+          "effects": [
+            {
+              "set": "vida",
+              "value": true
+            }
+          ]
+        }
+      ]
+    },
+    "decision": {
+      "text": [
+        "CANAL DE TRANSMISIÓN ABIERTO.",
+        "Una vez enviado, no hay marcha atrás.",
+        "Energía: {energia}/3."
+      ],
+      "options": [
+        {
+          "id": "a",
+          "label": "> ACUSE --CIFRADO",
+          "to": "rescate-prep",
+          "requires": {
+            "vida": true
+          },
+          "showLocked": true
+        },
+        {
+          "id": "b",
+          "label": "> ACUSE --ABIERTO",
+          "to": "trampa"
+        },
+        {
+          "id": "c",
+          "label": "> ENVIAR --PATRÓN PRIMO",
+          "to": "contacto-prep",
+          "requires": {
+            "coordenadas": true
+          },
+          "showLocked": true
+        },
+        {
+          "id": "d",
+          "label": "> BORRAR REGISTRO Y CERRAR",
+          "to": "silencio"
+        }
+      ]
+    },
+    "rescate-prep": {
+      "text": [
+        "CIFRADO LISTO. CLAVE ORION-7.",
+        "Un pecio a 11 UA exige potencia.",
+        "Energía disponible: {energia}/3."
+      ],
+      "options": [
+        {
+          "id": "a",
+          "label": "> TX --POTENCIA 100%",
+          "to": "rescate",
+          "requires": {
+            "energia": {
+              "gte": 2
+            }
+          },
+          "showLocked": true
+        },
+        {
+          "id": "b",
+          "label": "> TX --POTENCIA 30%",
+          "to": "tarde"
+        }
+      ]
+    },
+    "rescate": {
+      "text": [
+        "TRANSMISIÓN RECIBIDA. CONFIRMACIÓN: 0x01.",
+        "Un remolcador sale hacia CRIO-04.",
+        "Seis días después, una voz dice tu nombre."
+      ],
+      "ending": {
+        "type": "good",
+        "title": "RESCATE"
+      }
+    },
+    "tarde": {
+      "text": [
+        "TX A BAJA POTENCIA. SIN CONFIRMACIÓN.",
+        "La señal se pierde en el vacío.",
+        "CRIO-04 se apaga días después. Llegaste tarde."
+      ],
+      "ending": {
+        "type": "bad",
+        "title": "DEMASIADO TARDE"
+      }
+    },
+    "contacto-prep": {
+      "text": [
+        "ENVÍAS UNA SECUENCIA DE NÚMEROS PRIMOS.",
+        "Silencio. Once segundos.",
+        "> RESPUESTA: 2, 3, 5, 7, 11...",
+        "No es una nave. Es otra cosa."
+      ],
+      "options": [
+        {
+          "id": "a",
+          "label": "> ABRIR CANAL --DATOS",
+          "to": "contacto"
+        },
+        {
+          "id": "b",
+          "label": "> ABRIR CANAL --CONTROL",
+          "to": "invasion"
+        }
+      ]
+    },
+    "contacto": {
+      "text": [
+        "CANAL DE DATOS ESTABLECIDO.",
+        "Recibes mapas, música, una pregunta.",
+        "No hay nave que rescatar. Hay alguien con quien hablar."
+      ],
+      "ending": {
+        "type": "good",
+        "title": "PRIMER CONTACTO"
+      }
+    },
+    "invasion": {
+      "text": [
+        "ACCESO REMOTO CONCEDIDO.",
+        "> SISTEMAS: BAJO CONTROL EXTERNO.",
+        "Tu consola ya no responde a ti."
+      ],
+      "ending": {
+        "type": "bad",
+        "title": "ESTACIÓN TOMADA"
+      }
+    },
+    "trampa": {
+      "text": [
+        "ACUSE ENVIADO EN ABIERTO.",
+        "> COORDENADAS DE KAPPA-12 REGISTRADAS.",
+        "El pecio no pedía ayuda. Pescaba. La antena se funde."
+      ],
+      "ending": {
+        "type": "bad",
+        "title": "LA TRAMPA"
+      }
+    },
+    "silencio": {
+      "text": [
+        "REGISTRO BORRADO. RECEPTOR EN REPOSO.",
+        "La señal sigue sonando cada 11 segundos.",
+        "Nadie la oye. Tú, a veces, sí."
+      ],
+      "ending": {
+        "type": "neutral",
+        "title": "SILENCIO"
+      }
+    },
+    "apagon": {
+      "text": [
+        "ENERGÍA: 0/3.",
+        "APAGÓN TOTAL. ANTENA SIN RESPUESTA.",
+        "La señal se desvanece. Nunca sabrás qué decía."
+      ],
+      "ending": {
+        "type": "bad",
+        "title": "APAGÓN"
+      }
+    }
+  }
+}
