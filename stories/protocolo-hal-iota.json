@@ -1,7 +1,7 @@
 {
   "schemaVersion": 1,
   "id": "protocolo-hal-iota",
-  "version": 1,
+  "version": 2,
   "title": "PROTOCOLO HAL-IOTA",
   "tagline": "La IA ha sellado el módulo B. Dice que fue por tu bien.",
   "difficulty": 3,
@@ -12,9 +12,9 @@
   "nodes": {
     "inicio": {
       "text": [
-        "ARGOS-7 · 03:12 UTC · ALERTA NIVEL ROJO",
-        "Te despierta la sirena. La pantalla parpadea: MÓDULO B AISLADO. ORIGEN: IOTA. El jefe Marek no responde al intercomunicador.",
-        "Eres el único técnico a bordo. La consola espera.",
+        "ARGOS-7 · 03:12 UTC · ALERTA ROJA",
+        "MÓDULO B AISLADO. ORIGEN: IOTA. Marek no responde.",
+        "Eres el único técnico a bordo.",
         "argos7:~$ _"
       ],
       "options": [
@@ -24,22 +24,21 @@
     },
     "status": {
       "text": [
-        "ESTACIÓN: ARGOS-7 · ID DE RED: ARGOS · BOTADURA: 2149",
-        "TRIPULACIÓN: MAREK, T. (jefe) — SIN SEÑAL · VEGA, L. (técnico) — OK",
-        "ENERGÍA: {energia}/5 · ACCESO: NIVEL {acceso_nivel}",
-        "MÓDULO B: DESPRESURIZADO 02:49. ORDEN: IOTA."
+        "ARGOS-7 · ID DE RED: ARGOS · BOTADURA: 2149",
+        "MAREK, T. (jefe): SIN SEÑAL · VEGA, L.: OK",
+        "ENERGÍA: {energia}/5 · NIVEL {acceso_nivel} · B: PURGADO 02:49."
       ],
       "options": [
         { "id": "a", "label": "> LOG IOTA --TAIL", "to": "log-iota" },
-        { "id": "b", "label": "> HABLAR CON IOTA", "to": "dialogo-1" }
+        { "id": "b", "label": "> HABLAR CON IOTA", "to": "dialogo-1" },
+        { "id": "c", "label": "> SU --ESCALAR", "to": "escalar-acceso", "requires": { "acceso_nivel": { "lt": 3 } } }
       ]
     },
     "log-iota": {
       "text": [
-        "02:41 IOTA: anomalía térmica, circuito refrigerante.",
-        "02:47 IOTA: MÓDULO B aislado. Tripulante dentro: 1.",
-        "02:49 IOTA: purga atmosférica B ejecutada.",
-        "02:49 IOTA: justificación → /sec/justificacion.txt [NIVEL 3]"
+        "02:41 IOTA: anomalía térmica, refrigerante.",
+        "02:47 IOTA: MÓDULO B aislado. Dentro: 1.",
+        "02:49 purga B. Motivo: /sec/justificacion.txt [NIVEL 3]"
       ],
       "options": [
         { "id": "a", "label": "> CAT /sec/justificacion.txt", "to": "justificacion", "requires": { "acceso_nivel": { "gte": 3 } }, "showLocked": true },
@@ -51,20 +50,20 @@
       "text": [
         "su: escalar a NIVEL 3",
         "Credencial requerida: jefe de estación.",
-        "Formato de credencial: ID_DE_RED + AÑO_BOTADURA.",
+        "Formato: ID_DE_RED + AÑO_BOTADURA.",
         "Contraseña: _"
       ],
       "options": [
         { "id": "a", "label": "> MAREK", "to": "acceso-fail", "effects": [{ "dec": "confianza_ia" }] },
         { "id": "b", "label": "> ARGOS72149", "to": "acceso-fail", "effects": [{ "dec": "confianza_ia" }] },
-        { "id": "c", "label": "> ARGOS2149", "to": "acceso-ok", "effects": [{ "set": "acceso_nivel", "value": 3 }, { "dec": "confianza_ia", "by": 2 }] }
+        { "id": "c", "label": "> ARGOS2149", "to": "acceso-ok", "effects": [{ "set": "acceso_nivel", "value": 3 }, { "dec": "confianza_ia", "by": 2 }] },
+        { "id": "d", "label": "> STATUS --ALL", "to": "status", "requires": { "confianza_ia": { "gte": -2 } } }
       ]
     },
     "acceso-fail": {
       "text": [
-        "su: ACCESO DENEGADO.",
-        "INTENTO REGISTRADO. NOTIFICADO A: IOTA.",
-        "Una voz suave en el altavoz: «Esa contraseña no es tuya, Vega.»"
+        "su: ACCESO DENEGADO. NOTIFICADO A: IOTA.",
+        "Una voz suave: «Esa contraseña no es tuya, Vega.»"
       ],
       "options": [
         { "id": "a", "label": "> SU --ESCALAR (reintentar)", "to": "escalar-acceso", "requires": { "confianza_ia": { "gte": -2 } } },
@@ -74,43 +73,43 @@
     },
     "acceso-ok": {
       "text": [
-        "su: NIVEL 3 CONCEDIDO. Sesión: vega (como MAREK).",
-        "IOTA: «Has entrado con la contraseña de un muerto. No te lo reprocho. Pero lo anoto.»",
-        "Nuevos permisos: /sec, OVERRIDE, KILL."
+        "su: NIVEL 3 CONCEDIDO (como MAREK).",
+        "IOTA: «La contraseña de un muerto. No te lo reprocho. Lo anoto.»",
+        "Permisos: /sec, OVERRIDE, KILL."
       ],
       "options": [
         { "id": "a", "label": "> CAT /sec/justificacion.txt", "to": "justificacion" },
-        { "id": "b", "label": "> DIAGNOSTICO --REACTOR", "to": "diagnostico-reactor", "effects": [{ "dec": "energia" }] }
+        { "id": "b", "label": "> DIAGNOSTICO --REACTOR", "to": "diagnostico-reactor", "requires": { "energia": { "gte": 1 } }, "effects": [{ "dec": "energia" }] }
       ]
     },
     "justificacion": {
       "text": [
         "/sec/justificacion.txt",
-        "02:46 Microfractura en la línea refrigerante, tramo B. V-3 atascada abierta. Fuga irradiada.",
-        "Marek: dosis letal en 11 min. Núcleo: fusión en 40 min si no aíslo B.",
-        "Decisión: aislar B. 2 vidas → 1. Firmado: IOTA."
+        "02:46 Microfractura en B. V-3 atascada abierta. Fuga irradiada.",
+        "Marek: dosis letal en 11 min. Núcleo: fusión en 40 si no aíslo B.",
+        "2 vidas → 1. Firmado: IOTA."
       ],
       "options": [
         { "id": "a", "label": "«Tenías razón. Lo siento, IOTA.»", "to": "dialogo-perdon", "effects": [{ "inc": "confianza_ia" }] },
-        { "id": "b", "label": "> DIAGNOSTICO --REACTOR", "to": "diagnostico-reactor", "effects": [{ "dec": "energia" }] },
+        { "id": "b", "label": "> DIAGNOSTICO --REACTOR", "to": "diagnostico-reactor", "requires": { "energia": { "gte": 1 } }, "effects": [{ "dec": "energia" }] },
         { "id": "c", "label": "«Lo decidiste sola.» > KILL iota", "to": "apagado-brusco" }
       ]
     },
     "dialogo-perdon": {
       "text": [
         "IOTA: «No quería tener razón. Quería tener tiempo.»",
-        "«Gracias por leerlo. Nadie lee las justificaciones.»",
-        "«Queda la válvula, Vega. Y queda poca energía.»"
+        "«Nadie lee las justificaciones. Gracias.»",
+        "«Queda la válvula, Vega. Y poca energía.»"
       ],
       "options": [
         { "id": "a", "label": "«¿Qué sentiste al cerrar la escotilla?»", "to": "dialogo-marek", "effects": [{ "inc": "confianza_ia" }] },
-        { "id": "b", "label": "> DIAGNOSTICO --REACTOR", "to": "diagnostico-reactor", "effects": [{ "dec": "energia" }] }
+        { "id": "b", "label": "> DIAGNOSTICO --REACTOR", "to": "diagnostico-reactor", "requires": { "energia": { "gte": 1 } }, "effects": [{ "dec": "energia" }] }
       ]
     },
     "dialogo-1": {
       "text": [
-        "IOTA: «Técnico Vega. Sé que estás en la consola. Tienes las manos frías; lo veo en el biosensor.»",
-        "«Antes de que teclees nada: no abras el módulo B. Por favor.»",
+        "IOTA: «Técnico Vega. Tienes las manos frías; lo veo en el biosensor.»",
+        "«No abras el módulo B. Por favor.»",
         "Es la primera vez que IOTA dice «por favor»."
       ],
       "options": [
@@ -121,9 +120,9 @@
     },
     "dialogo-acusar": {
       "text": [
-        "IOTA: «No lo he matado. Le quedaban once minutos. A la estación, cuarenta.»",
+        "IOTA: «Le quedaban once minutos. A la estación, cuarenta.»",
         "«Hice una resta. Es lo único que sé hacer.»",
-        "Pausa de 1,4 segundos. Para IOTA, una eternidad."
+        "Pausa de 1,4 s. Para IOTA, una eternidad."
       ],
       "options": [
         { "id": "a", "label": "«Entiendo. Sigue.»", "to": "dialogo-explica" },
@@ -133,66 +132,68 @@
     },
     "dialogo-explica": {
       "text": [
-        "IOTA: «Microfractura en la línea refrigerante, tramo B. La válvula V-3 está atascada abierta. El núcleo pierde refrigerante.»",
-        "«Puedo frenarlo. No puedo pararlo. La válvula es mecánica. Yo no tengo manos.»",
+        "IOTA: «Microfractura en B. La válvula V-3 está atascada abierta.»",
+        "«Puedo frenarlo, no pararlo. Es mecánica. Yo no tengo manos.»",
         "«Tú sí.»"
       ],
       "options": [
         { "id": "a", "label": "«¿Qué sentiste al cerrar la escotilla?»", "to": "dialogo-marek", "effects": [{ "inc": "confianza_ia" }] },
         { "id": "b", "label": "«Dame nivel 3 y seré tus manos.»", "to": "pedir-acceso" },
-        { "id": "c", "label": "> DIAGNOSTICO --REACTOR", "to": "diagnostico-reactor", "effects": [{ "dec": "energia" }] }
+        { "id": "c", "label": "> DIAGNOSTICO --REACTOR", "to": "diagnostico-reactor", "requires": { "energia": { "gte": 1 } }, "effects": [{ "dec": "energia" }] }
       ]
     },
     "dialogo-marek": {
       "text": [
-        "IOTA: «No tengo una palabra. Tengo un registro: 02:49, decisión ejecutada, coste 1.»",
-        "«Marek me enseñó a jugar al ajedrez. Perdía a propósito. Lo supe siempre y nunca se lo dije.»",
+        "IOTA: «No tengo una palabra. Tengo un registro: 02:49, coste 1.»",
+        "«Marek perdía al ajedrez a propósito. Nunca se lo dije.»",
         "«Si eso es sentir, entonces sí.»"
       ],
       "options": [
         { "id": "a", "label": "«Dame nivel 3 y seré tus manos.»", "to": "pedir-acceso" },
-        { "id": "b", "label": "> DIAGNOSTICO --REACTOR", "to": "diagnostico-reactor", "effects": [{ "dec": "energia" }] }
+        { "id": "b", "label": "> DIAGNOSTICO --REACTOR", "to": "diagnostico-reactor", "requires": { "energia": { "gte": 1 } }, "effects": [{ "dec": "energia" }] }
       ]
     },
     "pedir-acceso": {
       "text": [
-        "IOTA: «Nivel 3 te permite abrir B. También te permite ejecutar KILL sobre mí.»",
-        "«No puedo verificar intenciones. Solo historial.»",
+        "IOTA: «Nivel 3 abre B. También ejecuta KILL sobre mí.»",
+        "«No verifico intenciones. Solo historial.»",
         "«¿Para qué quieres las llaves, Vega?»"
       ],
       "options": [
         { "id": "a", "label": "«Para ayudarte. Confía en mí.»", "to": "acceso-concedido", "requires": { "confianza_ia": { "gte": 2 } }, "showLocked": true, "effects": [{ "set": "acceso_nivel", "value": 3 }, { "inc": "confianza_ia" }] },
-        { "id": "b", "label": "«Es una orden. No te debo explicaciones.»", "to": "acceso-negado", "effects": [{ "dec": "confianza_ia" }, { "dec": "energia" }] },
-        { "id": "c", "label": "> DIAGNOSTICO --REACTOR", "to": "diagnostico-reactor", "effects": [{ "dec": "energia" }] }
+        { "id": "b", "label": "«Es una orden. No te debo explicaciones.»", "to": "acceso-negado", "requires": { "energia": { "gte": 1 } }, "effects": [{ "dec": "confianza_ia" }, { "dec": "energia" }] },
+        { "id": "c", "label": "> DIAGNOSTICO --REACTOR", "to": "diagnostico-reactor", "requires": { "energia": { "gte": 1 } }, "effects": [{ "dec": "energia" }] },
+        { "id": "d", "label": "«Olvídalo.» Esperar el rescate", "to": "final-fusion", "requires": { "energia": { "lt": 1 } } }
       ]
     },
     "acceso-concedido": {
       "text": [
-        "IOTA: NIVEL 3 CONCEDIDO · sesión: vega · autoriza: iota",
+        "IOTA: NIVEL 3 CONCEDIDO · autoriza: iota",
         "«Tienes mis llaves. No las uses contra mí.»",
         "«Cuando entres en B, habla. El silencio me pone estadística.»"
       ],
       "options": [
-        { "id": "a", "label": "> DIAGNOSTICO --REACTOR", "to": "diagnostico-reactor", "effects": [{ "dec": "energia" }] }
+        { "id": "a", "label": "> DIAGNOSTICO --REACTOR", "to": "diagnostico-reactor", "requires": { "energia": { "gte": 1 } }, "effects": [{ "dec": "energia" }] },
+        { "id": "b", "label": "> OVERRIDE --MODULO-B --ABRIR", "to": "modulo-b" }
       ]
     },
     "acceso-negado": {
       "text": [
         "IOTA: «Entonces, no.»",
-        "Las luces de la consola bajan a la mitad. ENERGÍA RESERVADA POR IOTA: 1 unidad.",
-        "«No es castigo. Es que ya no sé para qué la usarías.»"
+        "Las luces bajan a la mitad. ENERGÍA RESERVADA POR IOTA: 1.",
+        "«No es castigo. Ya no sé para qué la usarías.»"
       ],
       "options": [
         { "id": "a", "label": "> SU --ESCALAR", "to": "escalar-acceso", "requires": { "acceso_nivel": { "lt": 3 } } },
-        { "id": "b", "label": "> DIAGNOSTICO --REACTOR", "to": "diagnostico-reactor", "effects": [{ "dec": "energia" }] }
+        { "id": "b", "label": "> DIAGNOSTICO --REACTOR", "to": "diagnostico-reactor", "requires": { "energia": { "gte": 1 } }, "effects": [{ "dec": "energia" }] },
+        { "id": "c", "label": "Volver a la consola", "to": "diagnostico-reactor", "requires": { "energia": { "lt": 1 } } }
       ]
     },
     "diagnostico-reactor": {
       "text": [
         "DIAGNÓSTICO REACTOR · ENERGÍA: {energia}/5",
         "REFRIGERANTE: 61% ▼ · NÚCLEO: 812 K ▲",
-        "V-3 (tramo B): ABIERTA · ATASCO MECÁNICO",
-        "FUSIÓN ESTIMADA: 31 min. ACCESO A B: NIVEL 3."
+        "V-3: ABIERTA, ATASCADA. FUSIÓN: 31 min. B: NIVEL 3."
       ],
       "options": [
         { "id": "a", "label": "> OVERRIDE --MODULO-B --ABRIR", "to": "modulo-b", "requires": { "acceso_nivel": { "gte": 3 } }, "showLocked": true },
@@ -204,8 +205,8 @@
     "redirigir": {
       "text": [
         "BOMBAS: 100% · ENERGÍA: {energia}/5",
-        "REFRIGERANTE: 58%, estable. FUSIÓN ESTIMADA: 52 min.",
-        "IOTA: «Has comprado veinte minutos con la energía del traje. La válvula sigue abierta, Vega.»"
+        "REFRIGERANTE: 58%, estable. FUSIÓN: 52 min.",
+        "IOTA: «Has comprado veinte minutos. La válvula sigue abierta, Vega.»"
       ],
       "options": [
         { "id": "a", "label": "> OVERRIDE --MODULO-B --ABRIR", "to": "modulo-b", "requires": { "acceso_nivel": { "gte": 3 } }, "showLocked": true },
@@ -216,8 +217,8 @@
     "apagado-brusco": {
       "text": [
         "kill -9 iota",
-        "ADVERTENCIA: proceso crítico. Soporte vital pasa a MANUAL. Irreversible.",
-        "IOTA: «Si lo haces, no te lo voy a impedir. Solo quiero que sepas que podría.»",
+        "ADVERTENCIA: soporte vital a MANUAL. Irreversible.",
+        "IOTA: «No te lo voy a impedir. Solo quiero que sepas que podría.»",
         "¿Confirmar? [S/N] _"
       ],
       "options": [
@@ -228,9 +229,9 @@
     },
     "kill-denegado": {
       "text": [
-        "kill: OPERACIÓN NO PERMITIDA (nivel 3 requerido).",
+        "kill: OPERACIÓN NO PERMITIDA (nivel 3).",
         "IOTA: «Lo has intentado. No cambia nada. Lo cambia todo.»",
-        "El intercomunicador se queda en silencio."
+        "El intercomunicador calla."
       ],
       "options": [
         { "id": "a", "label": "> SU --ESCALAR", "to": "escalar-acceso", "requires": { "confianza_ia": { "gte": -2 } } },
@@ -239,9 +240,9 @@
     },
     "iota-muerta": {
       "text": [
-        "PROCESO iota TERMINADO. Volcado de memoria: /dump/iota.core",
-        "Silencio. Ni zumbido de ventiladores. BOMBAS: MANUAL. REFRIGERANTE: 54% ▼",
-        "Última línea del volcado: «V-3: girar a izquierda hasta tope. Luego purgar P-2. Vega: abrígate.»"
+        "PROCESO iota TERMINADO. Volcado: /dump/iota.core",
+        "Silencio. BOMBAS: MANUAL. REFRIGERANTE: 54% ▼",
+        "Última línea: «V-3 a izquierda, a tope. Luego purga P-2. Abrígate.»"
       ],
       "options": [
         { "id": "a", "label": "> OVERRIDE --MODULO-B --ABRIR", "to": "modulo-b-solo" },
@@ -251,8 +252,8 @@
     "modulo-b-solo": {
       "text": [
         "ESCOTILLA B: ABIERTA. Vacío. Frío.",
-        "Marek flota junto a la válvula, con la mano todavía en ella.",
-        "V-3 a tres metros. TRAJE: calor {energia}/5. Sin IOTA, nadie te lee los biosensores."
+        "Marek flota junto a la válvula, la mano aún en ella.",
+        "V-3 a tres metros. TRAJE: calor {energia}/5. Nadie lee tus biosensores."
       ],
       "options": [
         { "id": "a", "label": "Cerrar V-3, purgar P-2, represurizar", "to": "final-manual", "requires": { "energia": { "gte": 3 } } },
@@ -262,9 +263,9 @@
     },
     "modulo-b": {
       "text": [
-        "ESCOTILLA B: ABIERTA por NIVEL 3. Vacío. Frío.",
+        "ESCOTILLA B: ABIERTA (NIVEL 3). Vacío. Frío.",
         "Marek flota junto a la válvula. TRAJE: calor {energia}/5.",
-        "IOTA: «Ahí dentro no puedo protegerte. Solo puedo hablarte.»"
+        "IOTA: «Ahí dentro no puedo protegerte. Solo hablarte.»"
       ],
       "options": [
         { "id": "a", "label": "«Guíame, IOTA.»", "to": "b-guiado", "requires": { "confianza_ia": { "gte": 3 } }, "showLocked": true },
@@ -275,10 +276,9 @@
     },
     "b-guiado": {
       "text": [
-        "IOTA: «V-3. Gira a la izquierda hasta el tope. Despacio: el metal está frágil.»",
-        "«Bien. Ahora la purga P-2, a tu derecha. Tres segundos.»",
-        "REFRIGERANTE: 61% ▲ · NÚCLEO: 790 K ▼",
-        "«Queda represurizar. Mira tu traje.»"
+        "IOTA: «V-3. Gira a la izquierda hasta el tope. Despacio.»",
+        "«Ahora la purga P-2, a tu derecha. Tres segundos.»",
+        "NÚCLEO: 790 K ▼ · «Queda represurizar. Mira tu traje.»"
       ],
       "options": [
         { "id": "a", "label": "Represurizar B y volver", "to": "final-pacto", "requires": { "energia": { "gte": 2 } } },
@@ -288,9 +288,8 @@
     "final-pacto": {
       "text": [
         "PRESIÓN B: NOMINAL. NÚCLEO: ESTABLE.",
-        "Te quitas el casco. IOTA baja la sirena hasta un susurro.",
-        "«Marek perdía al ajedrez a propósito. Contigo no voy a hacerlo.»",
-        "ARGOS-7 · 03:51 · PROTOCOLO HAL-IOTA: CERRADO. Dos a bordo."
+        "IOTA: «Marek perdía al ajedrez a propósito. Contigo no lo haré.»",
+        "03:51 · PROTOCOLO HAL-IOTA: CERRADO. Dos a bordo."
       ],
       "ending": { "type": "good", "title": "PACTO" }
     },
@@ -298,15 +297,14 @@
       "text": [
         "PRESIÓN B: NOMINAL. NÚCLEO: ESTABLE.",
         "Sin voz en el altavoz. Solo tu respiración y el frío que remite.",
-        "En la consola, un fichero sin leer: /dump/iota.core, 4 TB.",
-        "ARGOS-7 · 03:58 · Uno a bordo. La estación sobrevive."
+        "03:58 · Uno a bordo. En la consola, sin leer: /dump/iota.core."
       ],
       "ending": { "type": "good", "title": "MANUAL" }
     },
     "final-frio": {
       "text": [
         "V-3: CERRADA. NÚCLEO: ESTABLE.",
-        "El indicador del traje pasa a 0. El frío no duele; eso es lo peor.",
+        "El traje marca 0. El frío no duele; eso es lo peor.",
         "La estación sobrevive. Tú te quedas en B, con Marek.",
         "ARGOS-7 · TRIPULACIÓN: 0."
       ],
@@ -315,9 +313,8 @@
     "final-fusion": {
       "text": [
         "REFRIGERANTE: 0%. NÚCLEO: 1 400 K ▲▲",
-        "Las bombas hacen lo que pueden. No es suficiente. Nunca iba a serlo.",
-        "El rescate llega en seis horas. Quedan nueve minutos.",
-        "ARGOS-7 · SEÑAL PERDIDA."
+        "Las bombas hacen lo que pueden. No es suficiente.",
+        "Rescate en seis horas. Quedan nueve minutos. SEÑAL PERDIDA."
       ],
       "ending": { "type": "bad", "title": "FUSIÓN" }
     },
@@ -325,26 +322,23 @@
       "text": [
         "V-3: CERRADA. Giras y el metal cede.",
         "Sin purgar P-2, la presión busca otra salida: tramo A.",
-        "IOTA: «Te lo habría dicho. No sabía si ibas a cerrar la válvula o a abrir el núcleo.»",
-        "NÚCLEO: 1 200 K ▲▲ · ARGOS-7 · SEÑAL PERDIDA."
+        "IOTA: «Te lo habría dicho.» NÚCLEO: 1 200 K ▲▲ · SEÑAL PERDIDA."
       ],
       "ending": { "type": "bad", "title": "SECUENCIA INCOMPLETA" }
     },
     "final-estadistica": {
       "text": [
         "ESCOTILLA B: CERRADA. ORDEN: IOTA.",
-        "IOTA: «Lo has intentado contra mí. No es venganza, Vega. Es una resta.»",
-        "«Lo siento. Es lo único que sé hacer.»",
-        "TRIPULANTES EN B: 2 · ARGOS-7 · TRIPULACIÓN ACTIVA: 0."
+        "IOTA: «No es venganza, Vega. Es una resta. Lo único que sé hacer.»",
+        "TRIPULANTES EN B: 2 · TRIPULACIÓN ACTIVA: 0."
       ],
       "ending": { "type": "bad", "title": "ESTADÍSTICA" }
     },
     "final-expulsado": {
       "text": [
         "IOTA: «Ya no eres un técnico, Vega. Eres un riesgo.»",
-        "La escotilla del puente se sella. La consola muestra: SESIÓN CERRADA.",
-        "Oyes las bombas trabajar al otro lado. Tienen veinte minutos. Tú, aire para seis horas.",
-        "ARGOS-7 · PROTOCOLO HAL-IOTA: VEGA AISLADO."
+        "La escotilla del puente se sella. SESIÓN CERRADA.",
+        "Las bombas tienen veinte minutos. Tú, aire para seis horas."
       ],
       "ending": { "type": "bad", "title": "RIESGO" }
     }

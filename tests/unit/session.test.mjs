@@ -55,12 +55,13 @@ test('newSessionId: 8-10 base36', () => {
 test('sessions: save/load/index order/remove', () => {
   let t = 100;
   const st = createSessionStore(createStorage(fakeLS()), () => t++);
-  st.saveSession('a', { storyId: 's', storyVersion: 1, log: ['x'], status: 'playing' });
+  const x = { optionId: 'x', playerId: null }, y = { optionId: 'y', playerId: null };
+  st.saveSession('a', { storyId: 's', storyVersion: 1, log: [x], status: 'playing' });
   st.saveSession('b', { storyId: 's', storyVersion: 1, log: [], status: 'playing' });
-  const a2 = st.saveSession('a', { storyId: 's', storyVersion: 1, log: ['x', 'y'], status: 'ended' });
+  const a2 = st.saveSession('a', { storyId: 's', storyVersion: 1, log: [x, y], status: 'ended' });
   assert.equal(a2.createdAt, 100);
   assert.equal(a2.updatedAt, 102);
-  assert.deepEqual(st.loadSession('a').log, ['x', 'y']);
+  assert.deepEqual(st.loadSession('a').log, [x, y]);
   assert.deepEqual(st.listSessions().map((e) => e.id), ['a', 'b']);
   st.removeSession('a');
   assert.equal(st.loadSession('a'), null);
@@ -91,4 +92,30 @@ test('log codec: round trip short, long, unsafe, empty', () => {
   assert.match(encodeLog(cases[3]), /^b64~[A-Za-z0-9_-]+$/);
   assert.equal(decodeLog('b64~!!!'), null);
   assert.equal(decodeLog('a b'), null);
+});
+
+test('sessions: removeSession also drops the typed marker', () => {
+  const storage = createStorage(fakeLS());
+  const st = createSessionStore(storage);
+  st.saveSession('a', { storyId: 's', storyVersion: 1, log: [], status: 'playing' });
+  storage.set('typed:a', 0);
+  st.removeSession('a');
+  assert.equal(storage.get('typed:a'), null);
+});
+
+test('sessions: corrupt index or session shapes are ignored, never thrown', () => {
+  const storage = createStorage(fakeLS());
+  const st = createSessionStore(storage);
+  for (const bad of [{ x: 1 }, 'str', 7, [null, 3, { id: 5 }, { id: 'ok', storyId: 's', updatedAt: 1 }]]) {
+    storage.set('index', bad);
+    assert.deepEqual(st.listSessions().map((e) => e.id), Array.isArray(bad) ? ['ok'] : []);
+  }
+  st.saveSession('b', { storyId: 's', storyVersion: 1, log: [], status: 'playing' });
+  assert.deepEqual(st.listSessions().map((e) => e.id), ['b', 'ok']);
+  for (const bad of [null, 'x', { log: 'no' }, { storyId: 's', log: [null] }, { storyId: 's', log: [{ optionId: 1 }] }, { log: [{ optionId: 'a' }] }]) {
+    storage.set('session:c', bad);
+    assert.equal(st.loadSession('c'), null);
+  }
+  storage.set('session:c', { storyId: 's', log: [{ optionId: 'a', playerId: null }] });
+  assert.ok(st.loadSession('c'));
 });

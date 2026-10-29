@@ -8,7 +8,7 @@ Cada historia es un fichero `stories/<id>.json`: un grafo de nodos. El motor (`j
 | --- | --- | --- | --- |
 | `schemaVersion` | número | sí | Debe ser `1`. |
 | `id` | string | sí | Solo `[a-z0-9-]`. Igual al nombre del fichero sin `.json`. |
-| `version` | entero | sí | >= 1. Súbelo cuando cambie el grafo: una partida guardada con otra versión no se recupera. |
+| `version` | entero | sí | >= 1. Súbelo cuando cambie el grafo. Una partida guardada se reproduce igualmente con la historia actual; si su log ya no encaja, se avisa y se ofrece reiniciar. |
 | `title` | string | sí | No vacío. |
 | `tagline` | string | no | Frase gancho. Aparece en el catálogo. |
 | `difficulty` | 1, 2, 3 | no | Otro valor es solo aviso. |
@@ -26,7 +26,7 @@ Cada historia es un fichero `stories/<id>.json`: un grafo de nodos. El motor (`j
   "ending": { "type": "bad", "title": "DESCOMPRESIÓN" } }   // nodo final
 ```
 
-- `text`: string o array de strings (cada elemento es un párrafo).
+- `text`: string o array de strings (cada elemento es un párrafo). Cabe en ~3-6 líneas de móvil (unos 150 caracteres). No repitas como primera línea la etiqueta de la opción que lleva al nodo: la terminal ya escribe el eco `> …`.
 - Un nodo con `ending` no tiene `options`. Cualquier otro nodo tiene entre 1 y 4.
 - `ending.type`: `"good"`, `"bad"` o `"neutral"`. `ending.title` es obligatorio. El neutral suena y se muestra como `FINAL NEUTRO`.
 - Si el nodo `start` ya es un final, la partida nace terminada.

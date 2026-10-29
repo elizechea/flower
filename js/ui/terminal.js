@@ -27,7 +27,7 @@ export function createTerminal({ log, options, screen, getSpeed = () => 'normal'
   };
 
   // Teclea `text` en una línea nueva. El texto completo va en un span oculto visualmente
-  // para que el lector de pantalla lo tenga entero desde el principio.
+  // para que el lector de pantalla lo tenga entero desde el principio. Devuelve null si se canceló.
   async function type(text, cls = 'txt', factor = 1) {
     const p = line(cls);
     const sr = document.createElement('span');
@@ -37,10 +37,12 @@ export function createTerminal({ log, options, screen, getSpeed = () => 'normal'
     vis.setAttribute('aria-hidden', 'true');
     p.append(sr, vis);
     setTyping(true);
+    let finished = false; // cancel() resuelve `done` sin llamar a onDone
     const tw = typewrite(text, {
       charDelay: skipped ? 0 : Math.round(SPEED_MS[getSpeed()] * factor),
       onChar(ch) { vis.textContent += ch; audio.blip(ch); scroll(); },
       onSkip(rest) { vis.textContent += rest; scroll(); },
+      onDone() { finished = true; },
     });
     current = tw;
     await tw.done;
@@ -48,7 +50,7 @@ export function createTerminal({ log, options, screen, getSpeed = () => 'normal'
     setTyping(false);
     vis.remove();
     sr.className = ''; // cambiar la clase no re-anuncia el texto
-    return p;
+    return finished ? p : null;
   }
 
   function buttons(items) {
@@ -89,7 +91,8 @@ export function createTerminal({ log, options, screen, getSpeed = () => 'normal'
       clearInterval(dots);
       p.remove();
     },
-    showOptions(opts, onChoose) {
+    // silent: al restaurar una partida las opciones se pintan sin sonido (spec §6).
+    showOptions(opts, onChoose, silent) {
       buttons(opts.map((o, i) => ({
         id: o.id,
         testid: 'option',
@@ -97,7 +100,7 @@ export function createTerminal({ log, options, screen, getSpeed = () => 'normal'
         disabled: !!o.locked,
         onClick: () => onChoose(o),
       })));
-      audio.optionsAppear();
+      if (!silent) audio.optionsAppear();
     },
     buttons,
     async ending(ending, instant) {
@@ -108,6 +111,7 @@ export function createTerminal({ log, options, screen, getSpeed = () => 'normal'
       box.dataset.endingType = ending.type;
       log.appendChild(box);
       const p = instant ? line('fin', fin) : await type(fin, 'fin', 0.5);
+      if (!p) return; // cancelado (cambio de vista) mientras tecleaba el título
       box.appendChild(p);
       box.appendChild(line('tag', t('ending.' + ending.type)));
       if (!instant) (ending.type === 'bad' ? audio.badEnding : audio.goodEnding)();

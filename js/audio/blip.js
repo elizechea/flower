@@ -1,5 +1,5 @@
 // Sonidos sintetizados (spec §8). Nunca lanza; sin AudioContext degrada en silencio.
-const MUTE_KEY = 'terminal:muted';
+// El contexto solo nace en unlock() (primer gesto del usuario); antes no se programa nada.
 const MAX_ACTIVE = 6; // polifonía máxima de blips de tecleo
 const MIN_GAP = 0.02; // s entre blips de tecleo
 
@@ -7,20 +7,10 @@ let ctx = null;
 let active = 0;
 let lastBlip = -1;
 let muted = false;
-try { muted = localStorage.getItem(MUTE_KEY) === '1'; } catch { /* sin storage */ }
-
-function getCtx() {
-  if (ctx) return ctx;
-  try {
-    const AC = globalThis.AudioContext || globalThis.webkitAudioContext;
-    if (AC) ctx = new AC();
-  } catch { ctx = null; }
-  return ctx;
-}
 
 // Una nota: oscilador -> ganancia -> salida; ataque 2 ms, decay exponencial, se desconecta al acabar.
 function tone({ freq, end = freq, dur = 0.04, type = 'square', gain = 0.05, at = 0, counted = false }) {
-  const c = getCtx();
+  const c = ctx;
   if (!c || muted) return;
   try {
     const t = c.currentTime + at;
@@ -47,15 +37,16 @@ function tone({ freq, end = freq, dur = 0.04, type = 'square', gain = 0.05, at =
 /** Crea/reanuda el contexto; llamar en el primer gesto del usuario. */
 export function unlock() {
   try {
-    const c = getCtx();
-    if (c && c.state === 'suspended') c.resume();
-  } catch { /* silencio */ }
+    const AC = globalThis.AudioContext || globalThis.webkitAudioContext;
+    if (!ctx && AC) ctx = new AC();
+    if (ctx && ctx.state === 'suspended') ctx.resume();
+  } catch { ctx = null; }
 }
 
 /** Blip de teletipo para un carácter visible. */
 export function blip(ch) {
   if (typeof ch === 'string' && ch.trim() === '') return;
-  const c = getCtx();
+  const c = ctx;
   if (!c || muted || active >= MAX_ACTIVE) return;
   if (c.currentTime - lastBlip < MIN_GAP) return;
   lastBlip = c.currentTime;
@@ -81,9 +72,7 @@ export function badEnding() {
   tone({ freq: 220, end: 55, dur: 0.7, type: 'sawtooth', gain: 0.07 });
 }
 
-export function setMuted(v) {
-  muted = !!v;
-  try { localStorage.setItem(MUTE_KEY, muted ? '1' : '0'); } catch { /* sin storage */ }
-}
+/** Silencio en memoria; la persistencia vive en los ajustes (terminal:v1:settings). */
+export function setMuted(v) { muted = !!v; }
 
 export function isMuted() { return muted; }

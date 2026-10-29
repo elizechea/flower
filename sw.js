@@ -1,6 +1,6 @@
 // Service worker: app shell cache-first, historias stale-while-revalidate.
 // Al añadir/quitar ficheros del shell, actualizar SHELL y subir VERSION.
-const VERSION = 'terminal-v1';
+const VERSION = 'terminal-v2';
 const SHELL = [
   './', 'index.html', 'manifest.webmanifest',
   'css/base.css', 'css/crt.css',
@@ -22,7 +22,8 @@ const SHELL = [
 self.addEventListener('install', (e) => {
   e.waitUntil(
     caches.open(VERSION)
-      .then((c) => c.addAll(SHELL.map((p) => new URL(p, self.registration.scope).href)))
+      // cache: 'reload' salta la caché HTTP del navegador (GitHub Pages: max-age=600) para no precachear copias viejas.
+      .then((c) => c.addAll(SHELL.map((p) => new Request(new URL(p, self.registration.scope).href, { cache: 'reload' }))))
       .then(() => self.skipWaiting()),
   );
 });
@@ -35,12 +36,15 @@ self.addEventListener('activate', (e) => {
   );
 });
 
-async function staleWhileRevalidate(req) {
+async function staleWhileRevalidate(e, req) {
   const cache = await caches.open(VERSION);
   const hit = await cache.match(req);
-  const net = fetch(req).then((res) => { if (res.ok) cache.put(req, res.clone()); return res; });
-  if (hit) { net.catch(() => {}); return hit; }
-  return net;
+  const net = fetch(req).then(async (res) => {
+    if (res.ok) await cache.put(req, res.clone()).catch(() => {}); // sin cuota: se sirve igual
+    return res;
+  });
+  e.waitUntil(net.catch(() => {})); // que el navegador no mate el SW antes de refrescar la caché
+  return hit || net;
 }
 
 async function cacheFirst(req) {
@@ -63,5 +67,5 @@ self.addEventListener('fetch', (e) => {
     return;
   }
   const scoped = url.pathname.slice(new URL(self.registration.scope).pathname.length);
-  e.respondWith(scoped.startsWith('stories/') && scoped.endsWith('.json') ? staleWhileRevalidate(req) : cacheFirst(req));
+  e.respondWith(scoped.startsWith('stories/') && scoped.endsWith('.json') ? staleWhileRevalidate(e, req) : cacheFirst(req));
 });

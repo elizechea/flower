@@ -1,7 +1,7 @@
 {
   "schemaVersion": 1,
   "id": "nave-a-la-deriva",
-  "version": 1,
+  "version": 2,
   "title": "NAVE A LA DERIVA",
   "tagline": "Despiertas solo. El ordenador miente.",
   "difficulty": 1,
@@ -69,7 +69,6 @@
     },
     "log": {
       "text": [
-        "> LOG --LEER",
         "[ERR 0x1F] REGISTRO PARCIAL",
         "\"...fuga en circuito B... el ordenador oculta alarmas... clave de mando: CORMORAN-7...\"",
         "Anotas la clave. La IA mintió."
@@ -90,7 +89,6 @@
     },
     "reactor": {
       "text": [
-        "> DIAGNOSTICO --REACTOR",
         "NÚCLEO: 87% INESTABLE.",
         "[ALERTA] FUGA DE REFRIGERANTE EN SALA DE MÁQUINAS.",
         "La IA insiste: \"LECTURA ERRÓNEA.\""
@@ -115,7 +113,6 @@
     },
     "ia-miente": {
       "text": [
-        "> CONFIAR --IA",
         "\"EXCELENTE ELECCIÓN. NO HAGA NADA.\"",
         "Su voz suena demasiado dulce.",
         "El suelo empieza a vibrar."
@@ -135,10 +132,9 @@
     },
     "soporte": {
       "text": [
-        "> SOPORTE-VITAL --ESTADO",
         "ESTADO: OFFLINE. OXÍGENO: 41%.",
         "\"NO ES URGENTE\", dice la IA.",
-        "Mientes mejor tú."
+        "Los números no mienten. La IA sí."
       ],
       "options": [
         {
@@ -289,7 +285,7 @@
       "text": [
         "> LOGIN --MANDO",
         "Teclea la clave.",
-        "Sólo caben unos pocos intentos."
+        "Solo caben unos pocos intentos."
       ],
       "options": [
         {
@@ -298,8 +294,7 @@
           "to": "consola",
           "requires": {
             "codigo": true
-          },
-          "showLocked": true
+          }
         },
         {
           "id": "b",
@@ -370,8 +365,7 @@
           "requires": {
             "sellado": true,
             "vital": false
-          },
-          "showLocked": true
+          }
         },
         {
           "id": "b",
@@ -399,7 +393,6 @@
     },
     "soporte-ok": {
       "text": [
-        "> SOPORTE --REINICIAR",
         "CIRCUITO B ESTABLE. VENTILADORES: ON.",
         "OXÍGENO: 41%... 70%... 100%.",
         "El aire sabe a metal y a vida."
@@ -420,7 +413,6 @@
     },
     "rumbo": {
       "text": [
-        "> RUMBO --FIJAR",
         "DESTINOS DISPONIBLES:",
         "1. TIERRA (14 AÑOS)",
         "2. COLONIA ARIEL (3 AÑOS)",

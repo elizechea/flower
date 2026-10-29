@@ -8,7 +8,7 @@
       "tagline": "Despiertas solo. El ordenador miente.",
       "difficulty": 1,
       "estimatedMinutes": 6,
-      "version": 1
+      "version": 2
     },
     {
       "id": "colonia-kepler-9",
@@ -17,7 +17,7 @@
       "tagline": "Aterrizaje de emergencia. La colonia no contesta.",
       "difficulty": 2,
       "estimatedMinutes": 9,
-      "version": 1
+      "version": 2
     },
     {
       "id": "senal-en-el-vacio",
@@ -26,7 +26,7 @@
       "tagline": "Una señal de socorro se repite en la noche. ¿Respondes?",
       "difficulty": 2,
       "estimatedMinutes": 8,
-      "version": 1
+      "version": 2
     },
     {
       "id": "protocolo-hal-iota",
@@ -35,7 +35,7 @@
       "tagline": "La IA ha sellado el módulo B. Dice que fue por tu bien.",
       "difficulty": 3,
       "estimatedMinutes": 12,
-      "version": 1
+      "version": 2
     }
   ]
 }

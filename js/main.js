@@ -60,10 +60,11 @@ async function route() {
   }
 }
 
-// Audio: desbloqueo en el primer gesto (política de autoplay).
+// Audio: desbloqueo en el primer gesto (política de autoplay). En captura, para que el contexto exista
+// antes de que ese mismo gesto (p. ej. saltar el tecleo) haga sonar algo.
 const unlock = () => { audio.unlock(); unlocked = true; };
-document.addEventListener('pointerdown', unlock, { once: true });
-document.addEventListener('keydown', unlock, { once: true });
+document.addEventListener('pointerdown', unlock, { once: true, capture: true });
+document.addEventListener('keydown', unlock, { once: true, capture: true });
 
 $('screen').addEventListener('pointerdown', () => terminal.skip());
 $('menu-btn').addEventListener('click', () => { audio.click(); menu.toggle(); });

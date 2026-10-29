@@ -9,7 +9,9 @@ export function newSessionId() {
 }
 
 export function createSessionStore(storage, clock = () => Date.now()) {
-  const index = () => storage.get('index') || [];
+  // Lecturas defensivas: el almacenamiento puede traer formas inesperadas (edición manual, versiones viejas).
+  const index = () => { const v = storage.get('index'); return Array.isArray(v) ? v.filter((e) => e && typeof e.id === 'string') : []; };
+  const validLog = (log) => Array.isArray(log) && log.every((e) => e && typeof e.optionId === 'string');
 
   const store = {
     saveSession(id, { storyId, storyVersion, log, status }) {
@@ -22,10 +24,11 @@ export function createSessionStore(storage, clock = () => Date.now()) {
     },
     loadSession(id) {
       const s = storage.get('session:' + id);
-      return s && typeof s === 'object' && Array.isArray(s.log) ? s : null;
+      return s && typeof s === 'object' && typeof s.storyId === 'string' && validLog(s.log) ? s : null;
     },
     removeSession(id) {
       storage.remove('session:' + id);
+      storage.remove('typed:' + id);
       storage.set('index', index().filter((e) => e.id !== id));
     },
     // newest first: [{ id, storyId, updatedAt }]

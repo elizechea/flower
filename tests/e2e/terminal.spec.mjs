@@ -131,6 +131,29 @@ test('5. recargar a mitad de partida restaura el historial sin teclear y con las
   await expect(page.locator('body')).toHaveAttribute('data-typing', '0');
 });
 
+test('5b. una versión guardada distinta se reproduce igualmente; un enlace con otra historia vuelve a la suya', async ({ page }) => {
+  await seed(page);
+  await startStory(page);
+  await play(page, 'a');
+  await options(page).first().waitFor();
+  const url = page.url();
+  const sessionId = url.match(/#\/play\/[^/]+\/([a-z0-9]+)/)[1];
+  await page.evaluate((id) => {
+    const k = 'terminal:v1:session:' + id;
+    const env = JSON.parse(localStorage.getItem(k));
+    env.d.storyVersion = 99;
+    localStorage.setItem(k, JSON.stringify(env));
+  }, sessionId);
+  await page.reload();
+  await options(page).first().waitFor();
+  expect(await page.locator('#log p.echo').allInnerTexts()).toEqual(['> HABLAR --ORDENADOR']);
+  expect(await page.evaluate((id) => JSON.parse(localStorage.getItem('terminal:v1:session:' + id)).d.storyVersion, sessionId)).not.toBe(99);
+  await page.goto(`#/play/colonia-kepler-9/${sessionId}`);
+  await page.waitForURL(new RegExp(`#/play/${STORY}/${sessionId}`));
+  await options(page).first().waitFor();
+  expect(await page.locator('#log p.echo').allInnerTexts()).toEqual(['> HABLAR --ORDENADOR']);
+});
+
 test('6. la URL con ?l= reconstruye la partida en un contexto nuevo sin almacenamiento', async ({ page, browser, baseURL }) => {
   await seed(page);
   await startStory(page);
@@ -176,14 +199,17 @@ const AUDIO_SPY = () => {
   window.webkitAudioContext = FakeAudioContext;
 };
 
-test('7a. sonido activado: se programan osciladores al teclear', async ({ page }) => {
+test('7a. sonido activado: nada antes del primer gesto; después se programan osciladores al teclear', async ({ page }) => {
   await page.addInitScript(AUDIO_SPY);
   await seed(page, { speed: 'normal' });
   await startStory(page);
-  await page.waitForFunction(() => window.__osc > 0);
-  await page.locator('#screen').click();
+  await expect(page.locator('body')).toHaveAttribute('data-typing', '1');
+  expect(await page.evaluate(() => window.__osc)).toBe(0); // sin gesto no hay AudioContext (spec §8)
+  await page.locator('#screen').click(); // primer gesto: desbloquea y salta el tecleo
   await options(page).first().waitFor();
-  expect(await page.evaluate(() => window.__osc)).toBeGreaterThanOrEqual(3); // blips + 2 tonos de opciones
+  expect(await page.evaluate(() => window.__osc)).toBe(2); // solo el doble blip de las opciones
+  await choose(page, 'a');
+  await page.waitForFunction(() => window.__osc > 3); // click + blips del eco
 });
 
 test('7b. sonido desactivado: no se programa ningún oscilador', async ({ page }) => {

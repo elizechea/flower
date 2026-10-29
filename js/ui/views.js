@@ -80,6 +80,11 @@ function replayIds(story, ids) {
 const echoText = (label) => (label.startsWith('>') ? label : '> ' + label);
 
 export function startGame({ terminal, store, storage, story, sessionId, hashLog }) {
+  const saved = store.loadSession(sessionId);
+  if (saved && saved.storyId !== story.id) { // enlace mezclado: la sesión manda sobre la historia de la URL
+    location.replace(hashFor({ name: 'play', storyId: saved.storyId, sessionId }));
+    return { stop() {} };
+  }
   let alive = true;
   let state;
   const transport = new LocalTransport();
@@ -114,7 +119,7 @@ export function startGame({ terminal, store, storage, story, sessionId, hashLog 
     }
     terminal.showOptions(availableOptions(story, state), (o) => {
       transport.send({ type: 'CHOOSE', optionId: o.id, playerId: 'local' });
-    });
+    }, instant);
   }
 
   // Única vía de mutación del estado: acción recibida por el transporte.
@@ -132,10 +137,9 @@ export function startGame({ terminal, store, storage, story, sessionId, hashLog 
     if (alive) enterNode(false);
   });
 
-  // Restauración: localStorage primero; si no hay, el ?l= del hash.
-  const saved = store.loadSession(sessionId);
-  const ids = saved ? (saved.storyVersion === story.version ? saved.log.map((e) => e.optionId) : null)
-    : (hashLog ? decodeLog(hashLog) : []);
+  // Restauración: localStorage primero; si no hay, el ?l= del hash. Se intenta el replay aunque la
+  // historia haya cambiado de versión (spec §6): solo si falla se avisa y se borra la sesión.
+  const ids = saved ? saved.log.map((e) => e.optionId) : (hashLog ? decodeLog(hashLog) : []);
   const steps = ids && replayIds(story, ids);
   if (!steps) {
     store.removeSession(sessionId);
@@ -147,7 +151,7 @@ export function startGame({ terminal, store, storage, story, sessionId, hashLog 
       terminal.echo(echoText(label), true);
     });
     state = steps[steps.length - 1].state;
-    if (!saved && ids.length) save();
+    if (saved ? saved.storyVersion !== story.version : ids.length) save(); // normaliza la versión guardada
     enterNode(storage.get('typed:' + sessionId) === state.log.length);
   }
 

@@ -39,10 +39,13 @@ Decisiones tomadas donde el spec era ambiguo o no decía nada, agrupadas por ár
 
 - Los ids de historia se validan con `/^[a-z0-9-]+$/`.
 - Diseño común: finales buenos 1-2 por historia, nodos de error que devuelven al paso anterior para no dejar trampas, energía como recurso acotado con `set` (no `inc`) para que el análisis no se trunque.
+- El texto de un nodo nunca empieza repitiendo la etiqueta de la opción que lleva a él: el eco `> …` ya lo escribe la terminal.
+- Comandos en MAYÚSCULAS sin tilde (`--PATRON`, `--DIAGNOSTICO`); el texto narrativo sí lleva tildes.
+- Las opciones bloqueadas con `showLocked` no deben revelar la solución de un puzle (sin `> CORMORAN-7 [BLOQUEADO]` ni `> CLAVE ORION-7 [BLOQUEADO]`); se ocultan o se etiquetan de forma neutra (`> INTRODUCIR CLAVE`).
 - NAVE A LA DERIVA (dificultad 1, tutorial): la clave CORMORAN-7 se descubre en el log y desbloquea el login (requires `codigo`); `energia` son los intentos de login restantes y a 0 se llega al final BLOQUEO. Dos finales buenos (A CASA, NUEVO HOGAR). Los efectos de recoger tarjeta y clave se aplican al volver, no en el nodo de lectura. Reiniciar el soporte vital sin sellar la fuga lleva al final malo FALLO EN CASCADA (la opción solo aparece si `sellado` es false).
-- COLONIA KEPLER-9: puzle `puerta-diag` que revela el código 7731 a cambio de 1 de energía. La tarjeta (`llave_acceso`) se obtiene en el hangar y permite entrar por la puerta y acceder al núcleo (opciones con `showLocked`). Las celdas de energía usan `set energia 4` en vez de `inc` para evitar granjear. El reactor fija `energia` a 6 al reiniciarse; el final bueno REINICIO LIMPIO exige `energia >= 5`. La clave de aborto K9-OMEGA se descubre leyendo logs (logs3) y el jugador debe elegirla entre claves falsas en el núcleo. Reactivar la base sin autorización o una clave errónea llevan al final malo PROTOCOLO OMEGA. Finales buenos: BASE REACTIVADA y REINICIO LIMPIO.
+- COLONIA KEPLER-9: el final malo CLAVE INCORRECTA (`muerte-clave`) es propio de la clave errónea en el núcleo; PROTOCOLO OMEGA queda solo para reactivar la base sin autorización. El diálogo del núcleo avisa de que el formateo requiere energía 5. Puzle `puerta-diag` que revela el código 7731 a cambio de 1 de energía. La tarjeta (`llave_acceso`) se obtiene en el hangar y permite entrar por la puerta y acceder al núcleo (opciones con `showLocked`). Las celdas de energía usan `set energia 4` en vez de `inc` para evitar granjear. El reactor fija `energia` a 6 al reiniciarse; el final bueno REINICIO LIMPIO exige `energia >= 5`. La clave de aborto K9-OMEGA se descubre leyendo logs (logs3) y el jugador debe elegirla entre claves falsas en el núcleo. Reactivar la base sin autorización lleva a PROTOCOLO OMEGA; la clave errónea, a CLAVE INCORRECTA. Finales buenos: BASE REACTIVADA y REINICIO LIMPIO.
 - SEÑAL EN EL VACÍO: finales buenos rescate y primer contacto; el silencio es neutral; trampa, tarde, invasión, sobrecarga y apagón son malos. La energía (3) se gasta en sintonías, filtros y decodificaciones erróneas; a 0 se llega a APAGÓN. La clave ORION-7 se obtiene leyendo el log de archivo (gratis) o por fuerza bruta (2 de energía, exige `energia >= 2`, si no SOBRECARGA). El rescate exige descifrar la capa 2 y transmitir a potencia 100% (energía >= 2). El contacto exige triangular el origen y enviar el patrón de números primos; abrir el canal CONTROL en vez de DATOS es final malo. Responder con acuse abierto lleva siempre a la trampa (el pecio es un señuelo). Los nodos de error devuelven al paso anterior con dos opciones complementarias según la energía.
-- PROTOCOLO HAL-IOTA: dos finales buenos (PACTO con IOTA viva y MANUAL tras matarla). Combinaciones ganadoras: (1) ruta de confianza (`confianza_ia >= 3`, nivel 3 concedido por IOTA, `energia >= 2`); (2) contraseña ARGOS2149 + KILL iota + válvula manual con `energia >= 3`; (3) ruta de confianza y luego traicionar a IOTA con KILL (también acaba en MANUAL). Usar la contraseña de Marek resta 2 de confianza (la ruta de engaño nunca alcanza PACTO). Para acotar estados: la escalada de acceso solo se ofrece con `acceso_nivel < 3`; con `confianza_ia < -2` IOTA aísla al técnico (final RIESGO); REDIRIGIR --BOMBAS exige `energia >= 2`. Cada DIAGNOSTICO --REACTOR cuesta 1 de energía; REDIRIGIR cuesta 2 y es un señuelo. La secuencia de la válvula (V-3 y luego purga P-2) solo se conoce guiado por IOTA o leyéndola en el volcado de memoria tras matarla.
+- PROTOCOLO HAL-IOTA: dos finales buenos (PACTO con IOTA viva y MANUAL tras matarla). Combinaciones ganadoras: (1) ruta de confianza (`confianza_ia >= 3`, nivel 3 concedido por IOTA, `energia >= 2`); (2) contraseña ARGOS2149 + KILL iota + válvula manual con `energia >= 3`; (3) ruta de confianza y luego traicionar a IOTA con KILL (también acaba en MANUAL). Usar la contraseña de Marek resta 2 de confianza (la ruta de engaño nunca alcanza PACTO). Para acotar estados: la escalada de acceso solo se ofrece con `acceso_nivel < 3`; con `confianza_ia < -2` IOTA aísla al técnico (final RIESGO); REDIRIGIR --BOMBAS exige `energia >= 2`. Cada DIAGNOSTICO --REACTOR cuesta 1 de energía y exige `energia >= 1` (igual que «Es una orden»), así la energía nunca baja de 0. Donde esa guarda dejaría sin salida hay una alternativa gratuita: con nivel 3 concedido por IOTA se puede abrir B directamente; con energía 0, `acceso-negado` vuelve a la consola y `pedir-acceso` solo deja esperar el rescate (FUSIÓN), para no crear un ciclo gratuito que dispare `confianza_ia`. REDIRIGIR cuesta 2 y es un señuelo. La pista de la contraseña (ID de red + año) está en STATUS, accesible desde la consola de escalada (`> STATUS --ALL`, solo con `confianza_ia >= -2` para acotar el espacio de estados) y STATUS ofrece `> SU --ESCALAR`. La secuencia de la válvula (V-3 y luego purga P-2) solo se conoce guiado por IOTA o leyéndola en el volcado de memoria tras matarla.
 
 ## Typewriter
 
@@ -62,8 +65,8 @@ Decisiones tomadas donde el spec era ambiguo o no decía nada, agrupadas por ár
 
 ## Audio
 
-- El silencio se guarda en localStorage con la clave `terminal:muted` (try/catch) y se lee al cargar el módulo.
-- El `AudioContext` se busca con `globalThis.AudioContext || globalThis.webkitAudioContext` y se cachea.
+- El silencio vive solo en memoria en `blip.js`; su persistencia es el ajuste `sound` de `terminal:v1:settings` (main.js y el menú llaman a `setMuted`). No hay clave `terminal:muted`.
+- El `AudioContext` (`globalThis.AudioContext || globalThis.webkitAudioContext`) se crea únicamente en `unlock()`, en el primer gesto del usuario; antes de ese gesto `blip`/`tone` no hacen nada (ni se encola sonido ni Chrome avisa en consola).
 - Polifonía: máx. 6 blips de tecleo vivos y mínimo 20 ms entre blips; los efectos no cuentan para ese tope.
 - Blip: square, 1800-2600 Hz con variación ±8 %, 30-45 ms, ataque 2 ms, decay exponencial, ganancia 0,05. `blip(ch)` ignora cadenas vacías o de solo espacios; si no recibe un string, suena.
 - click: square 600 Hz, 50 ms; `navigator.vibrate(5)` solo si no está silenciado y existe.
@@ -78,8 +81,10 @@ Decisiones tomadas donde el spec era ambiguo o no decía nada, agrupadas por ár
 - Ajustes: velocidad inválida cae a `normal`; sound inválido cae a `true`.
 - `encodeLog` devuelve `''` para log vacío y usa formato plano si cabe en 120 caracteres, solo tiene `[A-Za-z0-9_-]` y no hay puntos en los ids; si no, `b64~` + base64url(JSON). `decodeLog` devuelve null si es inválida (no lanza); `''` da `[]`.
 - `newSessionId` genera 9 caracteres base36 (`byte % 36`, sesgo mínimo aceptado).
-- Si el `storyVersion` guardado no coincide, se considera irrecuperable sin intentar el replay, se borra la sesión del índice y se ofrece reiniciar u otras historias.
-- El indicador de último nodo tecleado se guarda como `typed:<sessionId>` = longitud del log; al recargar, si coincide, se pintan nodo y opciones al instante. Esas claves no se borran al eliminar la sesión (residuo minúsculo, shortcut asumido).
+- Al restaurar se intenta siempre el replay del log, aunque el `storyVersion` guardado no coincida (spec §6: solo si el replay falla se avisa, se borra la sesión y se ofrece reiniciar). Si la versión difiere y el replay funciona, la sesión se vuelve a guardar con la versión actual.
+- La sesión manda sobre la historia de la URL: si `#/play/<historiaB>/<sesiónDeA>` apunta a una sesión guardada de otra historia, se redirige (`location.replace`) a `#/play/<historiaA>/<sesión>` sin tocar la sesión.
+- `loadSession` exige `storyId` string y un `log` cuyas entradas sean objetos con `optionId` string; el índice descarta lo que no sea array de `{id: string}`. Datos corruptos se tratan como ausentes, nunca lanzan.
+- El indicador de último nodo tecleado se guarda como `typed:<sessionId>` = longitud del log; al recargar, si coincide, se pintan nodo y opciones al instante (sin el doble blip de opciones). `removeSession` borra también esa clave.
 - Una sesión abierta desde `?l=` sin copia en storage se guarda inmediatamente para que aparezca en CONTINUAR.
 
 ## Transport
@@ -104,6 +109,7 @@ Decisiones tomadas donde el spec era ambiguo o no decía nada, agrupadas por ár
 - `#options` con `max-height: 55dvh` y scroll interno. Color extra `--fg-dim` (#1f9940).
 - Menú: la velocidad es un único botón que rota lenta → normal → rápida → instantánea; el sonido es un botón ON/OFF.
 - Tocar la pantalla (o Espacio/Enter) completa al instante el nodo entero (párrafos restantes y bloque FIN); saltar el eco no afecta al nodo siguiente.
+- `terminal.type()` devuelve `null` si se canceló (cambio de vista); `ending()` sale entonces sin añadir la etiqueta ni sonar.
 - Finales neutrales usan el arpegio de final bueno y la etiqueta FINAL NEUTRO. Al restaurar un final ya alcanzado no suena ni se teclea la línea FIN. Si la etiqueta ya empieza por `>` no se antepone otro `> `.
 - El total de finales de cada historia se calcula descargando los ficheros en el selector (`index.json` no lo incluye).
 - El selector muestra [ TOCA PARA INICIAR ] solo si aún no hubo gesto del usuario; cualquier pointerdown/keydown desbloquea el audio.
@@ -113,6 +119,7 @@ Decisiones tomadas donde el spec era ambiguo o no decía nada, agrupadas por ár
 
 - Precache explícito de todos los módulos `js/`; el test falla si aparece un `.js` en `js/` que no esté en SHELL. También se precachean las 4 historias y `stories/index.json` (offline), refrescadas con stale-while-revalidate.
 - Navegación network-first con fallback a `index.html` offline. Cache-first para el resto de assets same-origin, cacheados en runtime. Para refrescar el shell hay que subir `VERSION` en `sw.js`.
+- El precache usa `Request` con `cache: 'reload'` para saltar la caché HTTP del navegador (GitHub Pages sirve con max-age=600) y no guardar copias viejas bajo la VERSION nueva. El refresco stale-while-revalidate de historias va dentro de `e.waitUntil` y espera al `cache.put` (los fallos de cuota se ignoran).
 - `theme_color` #030a03, igual que la meta del index; `orientation: portrait`. Icono maskable con el glifo al 70 %; apple-touch-icon al 85 % sobre negro opaco; `icon.svg` extra como icono 'any'.
 
 ## Tests E2E

@@ -16,17 +16,25 @@ class FakeCtx {
 }
 
 let mod = 0;
-async function fresh(AC = FakeCtx) {
+async function fresh(AC = FakeCtx, gesture = true) {
   globalThis.AudioContext = AC;
   delete globalThis.webkitAudioContext;
-  return import(`../../js/audio/blip.js?${mod++}`);
+  const a = await import(`../../js/audio/blip.js?${mod++}`);
+  if (gesture) a.unlock();
+  return a;
 }
 beforeEach(() => { delete globalThis.AudioContext; delete globalThis.navigator?.vibrate; });
 
-test('unlock crea y reanuda el contexto', async () => {
-  const a = await fresh();
+test('sin gesto: no se crea el contexto ni suena nada', async () => {
+  FakeCtx.last = null;
+  const a = await fresh(FakeCtx, false);
+  a.blip('a'); a.optionsAppear(); a.click(); a.badEnding();
+  assert.equal(FakeCtx.last, null);
   a.unlock();
   assert.equal(FakeCtx.last.state, 'running');
+  a.unlock(); // idempotente: no crea otro
+  a.blip('a');
+  assert.equal(FakeCtx.last.oscs.length, 1);
 });
 
 test('blip: ignora espacios y saltos, rango de frecuencia y duración', async () => {
@@ -79,7 +87,7 @@ test('webkitAudioContext como alternativa', async () => {
   globalThis.webkitAudioContext = FakeCtx;
   delete globalThis.AudioContext;
   const a = await import(`../../js/audio/blip.js?${mod++}`);
-  a.blip('x');
+  a.unlock(); a.blip('x');
   assert.equal(FakeCtx.last.oscs.length, 1);
   delete globalThis.webkitAudioContext;
 });

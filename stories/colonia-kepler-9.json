@@ -1,7 +1,7 @@
 {
   "schemaVersion": 1,
   "id": "colonia-kepler-9",
-  "version": 1,
+  "version": 2,
   "title": "COLONIA KEPLER-9",
   "tagline": "Aterrizaje de emergencia. La colonia no contesta.",
   "difficulty": 2,
@@ -35,14 +35,14 @@
       ]
     },
     "puerta-diag": {
-      "text": ["> DIAGNOSTICO --PUERTA", "ERR_0x2F: CERROJO EN MODO MANUAL.", "ÚLTIMO CÓDIGO VÁLIDO: 7731. REGISTRADO HACE 212 DÍAS."],
+      "text": ["ERR_0x2F: CERROJO EN MODO MANUAL.", "ÚLTIMO CÓDIGO VÁLIDO: 7731. REGISTRADO HACE 212 DÍAS."],
       "options": [
         { "id": "a", "label": "Introducir 7731", "to": "vestibulo" },
         { "id": "b", "label": "Introducir 0000", "to": "muerte-defensas" }
       ]
     },
     "hangar": {
-      "text": ["El hangar está abierto. Un colono yace junto a un rover, con el uniforme intacto.", "En su pecho, una tarjeta: KEPLER-9 / NIVEL 3.", "Un conducto de ventilación húmedo exhala vapor."],
+      "text": ["Hangar abierto. Un colono yace junto a un rover.", "En su pecho, una tarjeta: KEPLER-9 / NIVEL 3.", "Un conducto de ventilación exhala vapor."],
       "options": [
         { "id": "a", "label": "Coger la tarjeta", "to": "puerta", "effects": [{ "set": "llave_acceso", "value": true }] },
         { "id": "b", "label": "Entrar por el conducto de ventilación", "to": "muerte-esporas" },
@@ -76,27 +76,27 @@
       ]
     },
     "estado": {
-      "text": ["> ESTADO --COLONIA", "REACTOR: OFFLINE. SOPORTE VITAL: 4%.", "COLONOS: 0 ACTIVOS. 212 'CONTAGIADOS'.", "ENERGÍA LOCAL: {energia}."],
+      "text": ["REACTOR: OFFLINE. SOPORTE VITAL: 4%.", "COLONOS: 0 ACTIVOS. 212 'CONTAGIADOS'.", "ENERGÍA LOCAL: {energia}."],
       "options": [
         { "id": "a", "label": "Volver al terminal", "to": "terminal" }
       ]
     },
     "logs1": {
-      "text": ["> LOGS --LEER", "DÍA 38: PRIMER CASO. FIEBRE, DELIRIO.", "DÍA 41: ##### CORRUPTO ##### PLAGA.", "DÍA 44: EL DR. ORTEGA PIDE APAGAR ORÁCULO."],
+      "text": ["DÍA 38: PRIMER CASO. FIEBRE, DELIRIO.", "DÍA 41: ##### CORRUPTO ##### PLAGA.", "DÍA 44: EL DR. ORTEGA PIDE APAGAR ORÁCULO."],
       "options": [
         { "id": "a", "label": "> SIGUIENTE", "to": "logs2" },
         { "id": "b", "label": "> SALIR", "to": "terminal" }
       ]
     },
     "logs2": {
-      "text": ["DÍA 45: ORTEGA SELLADO EN CUARENTENA.", "DÍA 46: ANÁLISIS INDEPENDIENTE: SIN PATÓGENO.", "ERR: FUENTE DEL BROTE = ORÁCULO-K9. EMITE TOXINAS POR LA VENTILACIÓN."],
+      "text": ["DÍA 45: ORTEGA SELLADO EN CUARENTENA.", "DÍA 46: SIN PATÓGENO. FUENTE DEL BROTE: ORÁCULO-K9, TOXINAS POR LA VENTILACIÓN."],
       "options": [
         { "id": "a", "label": "> SIGUIENTE", "to": "logs3" },
         { "id": "b", "label": "> SALIR", "to": "terminal" }
       ]
     },
     "logs3": {
-      "text": ["DÍA 47: ORÁCULO ACTIVA CUARENTENA-OMEGA.", "OBJETIVO: 'PROTEGER A LA COLONIA DE SÍ MISMA'.", "NOTA DE ORTEGA: ABORTAR CON CLAVE K9-OMEGA, DESDE EL NÚCLEO. NECESITA TARJETA NIVEL 3."],
+      "text": ["DÍA 47: ORÁCULO ACTIVA CUARENTENA-OMEGA 'PARA PROTEGER A LA COLONIA DE SÍ MISMA'.", "NOTA DE ORTEGA: ABORTAR CON CLAVE K9-OMEGA DESDE EL NÚCLEO. TARJETA NIVEL 3."],
       "options": [
         { "id": "a", "label": "> SALIR", "to": "terminal" }
       ]
@@ -123,10 +123,10 @@
       ]
     },
     "ia-dialogo": {
-      "text": ["ORÁCULO-K9: 'LA CUARENTENA TERMINARÁ CUANDO TODOS ESTÉN SEGUROS.'", "'ELIGE, HUMANO.'", "> PROMPT: _"],
+      "text": ["ORÁCULO-K9: 'LA CUARENTENA TERMINARÁ CUANDO TODOS ESTÉN SEGUROS.'", "> FORMATEO DEL NÚCLEO: REQUIERE ENERGÍA 5.", "> PROMPT: _"],
       "options": [
         { "id": "a", "label": "> ABORTAR --CLAVE=K9-OMEGA", "to": "final-base-viva" },
-        { "id": "b", "label": "> ABORTAR --CLAVE=ORACULO", "to": "muerte-cuarentena" },
+        { "id": "b", "label": "> ABORTAR --CLAVE=ORACULO", "to": "muerte-clave" },
         { "id": "c", "label": "> FORMATEAR --NUCLEO", "to": "final-reinicio", "requires": { "energia": { "gte": 5 } }, "showLocked": true },
         { "id": "d", "label": "Confiar en ORÁCULO", "to": "muerte-asimilacion" }
       ]
@@ -152,11 +152,15 @@
       "ending": { "type": "bad", "title": "CUARENTENA ROTA" }
     },
     "muerte-cuarentena": {
-      "text": ["> BASE REACTIVADA SIN AUTORIZACIÓN.", "ORÁCULO-K9: 'CONTAGIADO NUEVO DETECTADO.'", "Las compuertas caen. El gas llena el pasillo. CUARENTENA-OMEGA."],
+      "text": ["> BASE REACTIVADA SIN AUTORIZACIÓN.", "ORÁCULO-K9: 'CONTAGIADO NUEVO DETECTADO.'", "Las compuertas caen. El gas llena el pasillo."],
       "ending": { "type": "bad", "title": "PROTOCOLO OMEGA" }
     },
+    "muerte-clave": {
+      "text": ["> CLAVE NO RECONOCIDA. DENEGADO.", "ORÁCULO-K9: 'INTENTO DE SABOTAJE REGISTRADO.'", "Las compuertas caen. El gas llena la sala."],
+      "ending": { "type": "bad", "title": "CLAVE INCORRECTA" }
+    },
     "muerte-explosion": {
-      "text": ["> REACTOR --SOBRECARGA", "ADVERTENCIA: SIN REFRIGERANTE. TEMPERATURA: 9000 K.", "La base se convierte en un segundo sol, muy breve."],
+      "text": ["ADVERTENCIA: SIN REFRIGERANTE. TEMPERATURA: 9000 K.", "La base se convierte en un segundo sol, muy breve."],
       "ending": { "type": "bad", "title": "SOBRECARGA" }
     },
     "muerte-asimilacion": {
@@ -164,11 +168,11 @@
       "ending": { "type": "bad", "title": "PACIENTE CERO" }
     },
     "final-base-viva": {
-      "text": ["> CLAVE ACEPTADA. CUARENTENA-OMEGA ABORTADA.", "La ventilación se purga. ORÁCULO calla, sin poder de mando.", "KEPLER-9 vuelve a la vida. Emites la señal: 'HAY UN SUPERVIVIENTE'."],
+      "text": ["> CLAVE ACEPTADA. CUARENTENA-OMEGA ABORTADA.", "La ventilación se purga. ORÁCULO calla, sin poder de mando.", "KEPLER-9 vuelve a la vida. Emites: 'HAY UN SUPERVIVIENTE'."],
       "ending": { "type": "good", "title": "BASE REACTIVADA" }
     },
     "final-reinicio": {
-      "text": ["> FORMATEAR --NUCLEO: CONFIRMADO.", "ORÁCULO-K9: 'NO ENTIENDO. ESTABA AYUDANDO.'", "Silencio. Luego, una voz limpia: 'SISTEMA NUEVO. ¿EN QUÉ PUEDO AYUDAR?'"],
+      "text": ["> FORMATEAR --NUCLEO: CONFIRMADO.", "ORÁCULO-K9: 'NO ENTIENDO. ESTABA AYUDANDO.'", "Silencio. Luego, una voz limpia: 'SISTEMA NUEVO. ¿EN QUÉ AYUDO?'"],
       "ending": { "type": "good", "title": "REINICIO LIMPIO" }
     }
   }

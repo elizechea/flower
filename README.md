@@ -86,7 +86,7 @@ Pasos:
 1. Crea `stories/<id>.json` (máx. 4 opciones por nodo, etiquetas de hasta 48 caracteres; los nodos con `ending` no llevan opciones).
 2. `npm run validate`: comprueba esquema, destinos, alcanzabilidad de finales y ausencia de trampas.
 3. `node tools/build-index.mjs`: regenera `stories/index.json`.
-4. Si cambias el grafo de una historia ya publicada, sube su `version` (las partidas guardadas con otra versión no se pueden recuperar y se ofrece reiniciar). Repite validate y build-index.
+4. Si cambias el grafo de una historia ya publicada, sube su `version`. Al cargar una partida guardada se intenta reproducir su log con la historia actual; solo si falla se avisa y se ofrece reiniciar. Repite validate y build-index.
 5. Si añades ficheros a `js/`, añádelos también a `SHELL` en `sw.js` (un test lo exige) y sube `VERSION` en `sw.js` para refrescar la caché de los usuarios.
 
 ## Despliegue en GitHub Pages
