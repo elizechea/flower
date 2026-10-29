@@ -2,6 +2,7 @@
 // El contexto solo nace en unlock() (primer gesto del usuario); antes no se programa nada.
 const MAX_ACTIVE = 6; // polifonía máxima de blips de tecleo
 const MIN_GAP = 0.02; // s entre blips de tecleo
+const APPLE_HZ = 1000; // el pitido del Apple II ronda 1 kHz
 
 let ctx = null;
 let active = 0;
@@ -9,7 +10,7 @@ let lastBlip = -1;
 let muted = false;
 
 // Una nota: oscilador -> ganancia -> salida; ataque 2 ms, decay exponencial, se desconecta al acabar.
-function tone({ freq, end = freq, dur = 0.04, type = 'square', gain = 0.05, at = 0, counted = false }) {
+function tone({ freq, end = freq, dur = 0.04, type = 'square', gain = 0.05, at = 0, counted = false, flat = false }) {
   const c = ctx;
   if (!c || muted) return;
   try {
@@ -21,7 +22,9 @@ function tone({ freq, end = freq, dur = 0.04, type = 'square', gain = 0.05, at =
     if (end !== freq) osc.frequency.exponentialRampToValueAtTime(end, t + dur);
     g.gain.setValueAtTime(0.0001, t);
     g.gain.linearRampToValueAtTime(gain, t + 0.002);
-    g.gain.exponentialRampToValueAtTime(0.0001, t + dur);
+    // flat: encendido/apagado como un altavoz de 1 bit (solo 2 ms de rampa para evitar chasquidos)
+    if (flat) { g.gain.setValueAtTime(gain, t + dur - 0.002); g.gain.linearRampToValueAtTime(0.0001, t + dur); }
+    else g.gain.exponentialRampToValueAtTime(0.0001, t + dur);
     osc.connect(g);
     g.connect(c.destination);
     if (counted) active++;
@@ -31,6 +34,34 @@ function tone({ freq, end = freq, dur = 0.04, type = 'square', gain = 0.05, at =
     };
     osc.start(t);
     osc.stop(t + dur + 0.01);
+  } catch { /* nunca lanza */ }
+}
+
+// Ráfaga de ruido blanco filtrado (paso banda). Sin createBuffer (navegadores viejos o espías) no suena.
+let noiseBuf = null;
+function noise({ freq, dur, gain, at = 0 }) {
+  const c = ctx;
+  if (!c || muted || !c.createBuffer || !c.createBufferSource || !c.createBiquadFilter) return;
+  try {
+    if (!noiseBuf || noiseBuf.sampleRate !== c.sampleRate) {
+      noiseBuf = c.createBuffer(1, Math.ceil(c.sampleRate * 0.05), c.sampleRate);
+      const d = noiseBuf.getChannelData(0);
+      for (let i = 0; i < d.length; i++) d[i] = Math.random() * 2 - 1; // se genera una vez: suena siempre igual
+    }
+    const t = c.currentTime + at;
+    const src = c.createBufferSource();
+    const f = c.createBiquadFilter();
+    const g = c.createGain();
+    src.buffer = noiseBuf;
+    f.type = 'bandpass';
+    f.frequency.setValueAtTime(freq, t);
+    f.Q.setValueAtTime(1.2, t);
+    g.gain.setValueAtTime(gain, t);
+    g.gain.exponentialRampToValueAtTime(0.0001, t + dur);
+    src.connect(f); f.connect(g); g.connect(c.destination);
+    src.onended = () => { try { src.disconnect(); f.disconnect(); g.disconnect(); } catch { /* ya desconectado */ } };
+    src.start(t);
+    src.stop(t + dur + 0.01);
   } catch { /* nunca lanza */ }
 }
 
@@ -52,18 +83,18 @@ function canType(ch) {
   return true;
 }
 
-/** Pitido de ordenador de los 80 (altavoz interno) por cada carácter que escribe el sistema. */
+/** Altavoz de 1 bit del Apple II: onda cuadrada a tono fijo, plana y corta. Siempre igual. */
 export function blip(ch) {
   if (!canType(ch)) return;
-  const f = (900 + Math.random() * 400) * (0.92 + Math.random() * 0.16);
-  tone({ freq: f, end: f * 0.85, dur: 0.035 + Math.random() * 0.01, gain: 0.09, counted: true });
+  tone({ freq: APPLE_HZ, dur: 0.025, gain: 0.07, flat: true, counted: true });
 }
 
-/** Tecla mecánica para lo que escribe el jugador: golpe grave + chasquido agudo. */
+/** Tecla de teclado mecánico: chasquido de ruido filtrado + golpe grave del fondo de la tecla. */
 export function keypress(ch) {
   if (!canType(ch)) return;
-  tone({ freq: 220 * (0.9 + Math.random() * 0.2), end: 90, dur: 0.045, gain: 0.16, counted: true });
-  tone({ freq: 3200 + Math.random() * 600, dur: 0.012, gain: 0.07 });
+  noise({ freq: 3500, dur: 0.012, gain: 0.5 }); // clic del interruptor
+  tone({ freq: 150, end: 70, dur: 0.04, type: 'sine', gain: 0.3, counted: true }); // golpe ("thock")
+  noise({ freq: 1200, dur: 0.02, gain: 0.25, at: 0.012 }); // tope de la tecla
 }
 
 /** Pulsación de botón: más grave. */

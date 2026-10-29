@@ -9,7 +9,7 @@ const stars = (d) => '★'.repeat(d) + '☆'.repeat(Math.max(0, 3 - d));
 const countEndings = (story) => Object.values(story.nodes).filter((n) => n.ending).length;
 const goHome = () => { location.hash = '#/'; };
 
-export function showHome({ terminal, store, storage, stories, loadStory, isUnlocked }) {
+export function showHome({ terminal, store, storage, stories, aiStories = [], loadStory, isUnlocked }) {
   let alive = true;
   document.body.dataset.view = 'home';
   document.getElementById('title').textContent = t('title');
@@ -33,6 +33,23 @@ export function showHome({ terminal, store, storage, stories, loadStory, isUnloc
       b.onclick = () => { location.hash = hashFor({ name: 'new', storyId: s.id }); };
       box.appendChild(b);
     });
+    if (aiStories.length) {
+      const h = document.createElement('p');
+      h.className = 'hdr';
+      h.textContent = t('home.ai');
+      box.appendChild(h);
+      aiStories.forEach((s) => {
+        const b = document.createElement('button');
+        b.type = 'button';
+        b.dataset.testid = 'ai-story';
+        b.dataset.storyId = s.id;
+        b.innerHTML = '<span class="st-title"></span><span class="st-tag"></span>';
+        b.children[0].textContent = s.title;
+        b.children[1].textContent = s.tagline;
+        b.onclick = () => { location.hash = hashFor({ name: 'ai-new', storyId: s.id }); };
+        box.appendChild(b);
+      });
+    }
     const inProgress = store.listSessions()
       .map((e) => ({ ...e, session: store.loadSession(e.id), story: stories.find((s) => s.id === e.storyId) }))
       .filter((e) => e.story && e.session && e.session.status === 'playing');

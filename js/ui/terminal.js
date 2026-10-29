@@ -103,6 +103,27 @@ export function createTerminal({ log, options, screen, getSpeed = () => 'veryslo
       if (!silent) audio.optionsAppear();
     },
     buttons,
+    // Entrada libre (modo IA). Cada pulsación suena a tecla mecánica (evento input: vale con teclado virtual).
+    input(placeholder, onSubmit) {
+      const form = document.createElement('form');
+      form.className = 'say';
+      const field = document.createElement('input');
+      Object.assign(field, { type: 'text', maxLength: 120, placeholder, autocomplete: 'off', enterKeyHint: 'send' });
+      field.dataset.testid = 'say';
+      field.setAttribute('aria-label', placeholder);
+      field.addEventListener('input', () => audio.keypress('x'));
+      form.append('> ', field);
+      form.onsubmit = (e) => {
+        e.preventDefault();
+        const text = field.value.trim();
+        if (!text) return;
+        audio.click();
+        options.replaceChildren();
+        onSubmit(text);
+      };
+      options.appendChild(form);
+      scroll();
+    },
     async ending(ending, instant) {
       const fin = t('ending.title', { title: ending.title });
       const box = document.createElement('div');

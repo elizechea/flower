@@ -7,6 +7,7 @@ const strings = {
     continue: 'CONTINUAR',
     minutes: '{n} min',
     decisions: '{n} decisiones',
+    ai: 'MODO IA · la historia la improvisa un modelo en tu dispositivo',
   },
   menu: {
     close: '[ X ] Salir del menú',
@@ -40,6 +41,18 @@ const strings = {
   ui: {
     processing: 'Procesando',
     linkCopied: 'Enlace copiado',
+  },
+  ai: {
+    download: 'El modo IA descarga un modelo de lenguaje la primera vez y lo ejecuta en tu dispositivo con WebGPU. Elige uno:',
+    model: {
+      light: 'Modelo ligero · Qwen2.5 1.5B ({size})',
+      best: 'Modelo mejor · Qwen2.5 3B ({size})',
+    },
+    loading: 'CARGANDO MODELO {pct}%',
+    placeholder: 'Escribe tu acción',
+    noWebGPU: 'ERROR: ESTE NAVEGADOR NO TIENE WEBGPU. El modo IA necesita Chrome/Edge recientes o Safari 26 en un equipo con GPU.',
+    loadError: 'ERROR AL CARGAR EL MODELO. Comprueba la conexión y la memoria libre.',
+    genError: 'ERROR DEL MODELO. Vuelve a intentarlo.',
   },
   notice: {
     storyChanged: 'La historia ha cambiado, la partida no es recuperable',

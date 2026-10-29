@@ -12,6 +12,9 @@ export function parseHash(hash = '') {
     return log ? { name, storyId, sessionId, log } : { name, storyId, sessionId };
   }
   if (name === 'new' && parts.length === 2 && STORY_ID.test(storyId)) return { name, storyId };
+  // Modo IA: #/ai/<historia> crea sesión; #/ai/<historia>/<sesión> es la partida.
+  if (name === 'ai' && parts.length === 2 && STORY_ID.test(storyId)) return { name: 'ai-new', storyId };
+  if (name === 'ai' && parts.length === 3 && STORY_ID.test(storyId) && SESSION_ID.test(sessionId)) return { name, storyId, sessionId };
   return { name: 'home' };
 }
 
@@ -21,5 +24,7 @@ export function hashFor(route) {
     return `#/play/${route.storyId}/${route.sessionId}${query}`;
   }
   if (route.name === 'new') return `#/new/${route.storyId}`;
+  if (route.name === 'ai-new') return `#/ai/${route.storyId}`;
+  if (route.name === 'ai') return `#/ai/${route.storyId}/${route.sessionId}`;
   return '#/';
 }

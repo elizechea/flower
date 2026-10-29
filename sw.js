@@ -1,11 +1,12 @@
 // Service worker: app shell cache-first, historias stale-while-revalidate.
 // Al añadir/quitar ficheros del shell, actualizar SHELL y subir VERSION.
-const VERSION = 'terminal-v3';
+const VERSION = 'terminal-v4';
 const SHELL = [
   './', 'index.html', 'manifest.webmanifest',
   'css/base.css', 'css/crt.css',
   'fonts/VT323-Regular.woff2',
   'js/main.js', 'js/router.js',
+  'js/ai/llm.js', 'js/ai/prompt.js', 'js/ui/ai-view.js',
   'js/audio/blip.js',
   'js/engine/conditions.js', 'js/engine/engine.js', 'js/engine/validate.js',
   'js/i18n/es.js',
@@ -14,7 +15,7 @@ const SHELL = [
   'js/ui/menu.js', 'js/ui/terminal.js', 'js/ui/typewriter.js', 'js/ui/views.js',
   'icons/icon.svg', 'icons/icon-192.png', 'icons/icon-512.png',
   'icons/icon-maskable-512.png', 'icons/apple-touch-icon.png',
-  'stories/index.json',
+  'stories/index.json', 'stories/ai/index.json',
   'stories/colonia-kepler-9.json', 'stories/nave-a-la-deriva.json',
   'stories/protocolo-hal-iota.json', 'stories/senal-en-el-vacio.json',
 ];

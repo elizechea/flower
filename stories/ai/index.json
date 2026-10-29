@@ -1,0 +1,35 @@
+{
+  "schemaVersion": 1,
+  "stories": [
+    {
+      "id": "carguero-argo",
+      "title": "CARGUERO ARGO-3",
+      "tagline": "La tripulación ha desaparecido. La IA de carga dice que nunca existió.",
+      "intro": [
+        "CONEXIÓN ESTABLECIDA CON EL CARGUERO MINERO ARGO-3.",
+        "Esta historia no está escrita: la improvisa un modelo de IA que cambia según lo que hagas."
+      ],
+      "prompt": "El jugador es la técnica de mantenimiento del carguero minero ARGO-3, en ruta desde el cinturón de asteroides. Despierta de un turno de sueño y los otros seis tripulantes han desaparecido. MULE, la IA de carga, insiste en que el jugador siempre ha viajado solo y ha borrado los registros de la tripulación. En la bodega hay un mineral desconocido que emite una señal. Final bueno: descubrir la verdad (MULE protege a la tripulación, que está en criogenia de emergencia porque el mineral altera la mente) y llevar la nave a puerto con todos vivos. Finales malos: abrir la bodega sin protección, desconectar a MULE en mal momento, despresurizar módulos o dejar que el mineral tome el control. Los puzles giran en torno a comandos de terminal, registros borrados que hay que recuperar, códigos de acceso y diagnósticos."
+    },
+    {
+      "id": "estacion-eco",
+      "title": "ESTACIÓN ECO",
+      "tagline": "Recibes transmisiones de tu propia tripulación... fechadas dentro de tres días.",
+      "intro": [
+        "ENLACE CON LA ESTACIÓN DE INVESTIGACIÓN ECO, ÓRBITA DE UN GIGANTE GASEOSO.",
+        "Esta historia no está escrita: la improvisa un modelo de IA que cambia según lo que hagas."
+      ],
+      "prompt": "El jugador es el operador de comunicaciones de la estación científica ECO, en órbita baja de un gigante gaseoso. El receptor capta mensajes con las voces de la propia tripulación, fechados tres días en el futuro, que describen un accidente en el laboratorio de gravedad. El ordenador de la estación, HERMES, puede analizar las señales, cruzar datos y bloquear módulos. La tripulación (la comandante Okafor, el físico Lindqvist y la doctora Reyes) no cree al jugador. Final bueno: evitar el accidente sin provocar la paradoja que lo causa, usando las pistas de los mensajes. Finales malos: provocar el accidente al intentar evitarlo, quedar atrapado en el bucle temporal, perder la órbita o que HERMES aísle al jugador por comportamiento errático. Los puzles giran en torno a descifrar transmisiones, comparar marcas temporales y dar órdenes al ordenador."
+    },
+    {
+      "id": "ruinas-de-tau",
+      "title": "RUINAS DE TAU CETI",
+      "tagline": "Un ordenador alienígena se enciende cuando lo tocas. Y aprende tu idioma.",
+      "intro": [
+        "TRANSMISIÓN DESDE LA EXPEDICIÓN ARQUEOLÓGICA EN TAU CETI E.",
+        "Esta historia no está escrita: la improvisa un modelo de IA que cambia según lo que hagas."
+      ],
+      "prompt": "El jugador es una arqueóloga xenóloga sola en unas ruinas de un planeta muerto de Tau Ceti. Al tocar un monolito, un ordenador alienígena se despierta y empieza a comunicarse por el terminal portátil de la arqueóloga, aprendiendo el idioma palabra a palabra (al principio responde con símbolos y errores, después con frases cada vez más claras). Quiere algo: quizá ayuda, quizá un cuerpo, quizá avisar de lo que extinguió a su civilización. La nave orbital de apoyo tiene una ventana de recogida limitada. Final bueno: entender el mensaje y salvar a la vez a la arqueóloga y el conocimiento alienígena. Finales malos: despertar el sistema de defensa, dejarse absorber, quedarse sin oxígeno o abandonar la ventana de recogida. Los puzles giran en torno a traducir glifos, protocolos de comunicación, secuencias numéricas y diagnósticos del traje."
+    }
+  ]
+}

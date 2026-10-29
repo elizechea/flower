@@ -89,6 +89,14 @@ Pasos:
 4. Si cambias el grafo de una historia ya publicada, sube su `version`. Al cargar una partida guardada se intenta reproducir su log con la historia actual; solo si falla se avisa y se ofrece reiniciar. Repite validate y build-index.
 5. Si añades ficheros a `js/`, añádelos también a `SHELL` en `sw.js` (un test lo exige) y sube `VERSION` en `sw.js` para refrescar la caché de los usuarios.
 
+## Modo IA
+
+En el selector, la sección **MODO IA** lista historias que no están escritas. Cada una es un prompt (`stories/ai/index.json`) y la improvisa un modelo de lenguaje que se ejecuta en tu dispositivo con [WebLLM](https://github.com/mlc-ai/web-llm). Puedes elegir una opción o escribir lo que quieras, y la historia cambia según decida el modelo.
+
+- Necesita un navegador con WebGPU: Chrome o Edge recientes, o Safari 26.
+- La primera vez descarga el modelo: Qwen2.5 1.5B (~1 GB) o 3B (~2 GB). Después queda en la caché del navegador.
+- Para añadir una historia IA, añade una entrada a `stories/ai/index.json` con `id`, `title`, `tagline`, `intro` (párrafos de presentación) y `prompt` (escenario, final bueno, finales malos y tipo de puzles). `tests/unit/ai.test.mjs` comprueba los campos.
+
 ## Despliegue en GitHub Pages
 
 1. En el repositorio: Settings → Pages → Source: **GitHub Actions**.

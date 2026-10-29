@@ -44,7 +44,7 @@ test('blip: ignora espacios y saltos, rango de frecuencia y duración', async ()
   for (let i = 0; i < 50; i++) { a.blip('a'); FakeCtx.last.currentTime += 0.05; FakeCtx.last.oscs.at(-1).onended(); }
   for (const o of FakeCtx.last.oscs) {
     assert.equal(o.type, 'square');
-    assert.ok(o.freqs[0] >= 900 * 0.92 - 1 && o.freqs[0] <= 1300 * 1.08 + 1);
+    assert.equal(o.freqs[0], 1000); // Apple II: siempre el mismo tono
   }
 });
 
@@ -87,11 +87,25 @@ test('keypress: tecla del jugador grave + chasquido, ignora espacios', async () 
   const a = await fresh();
   a.keypress(' ');
   assert.equal(FakeCtx.last.oscs.length, 0);
-  a.keypress('a');
-  assert.equal(FakeCtx.last.oscs.length, 2);
+  a.keypress('a'); // sin createBuffer: solo el golpe grave
+  assert.equal(FakeCtx.last.oscs.length, 1);
   assert.ok(FakeCtx.last.oscs[0].freqs[0] < 300);
   a.setMuted(true); FakeCtx.last.currentTime += 0.05; a.keypress('b');
-  assert.equal(FakeCtx.last.oscs.length, 2);
+  assert.equal(FakeCtx.last.oscs.length, 1);
+});
+
+test('keypress con ruido: dos ráfagas filtradas con el mismo búfer', async () => {
+  const a = await fresh();
+  const c = FakeCtx.last;
+  const srcs = [];
+  const param = () => ({ setValueAtTime() {}, exponentialRampToValueAtTime() {} });
+  c.sampleRate = 8000;
+  c.createBuffer = (n, len, sr) => ({ sampleRate: sr, data: new Float32Array(len), getChannelData() { return this.data; } });
+  c.createBufferSource = () => { const s = { connect() {}, disconnect() {}, start() {}, stop() {} }; srcs.push(s); return s; };
+  c.createBiquadFilter = () => ({ frequency: param(), Q: param(), connect() {}, disconnect() {} });
+  a.keypress('a'); c.currentTime += 0.05; a.keypress('b');
+  assert.equal(srcs.length, 4);
+  assert.equal(srcs[0].buffer, srcs[3].buffer);
 });
 
 test('webkitAudioContext como alternativa', async () => {

@@ -4,6 +4,7 @@ import { createStorage } from './session/storage.js';
 import { createSessionStore, newSessionId } from './session/session.js';
 import { createTerminal } from './ui/terminal.js';
 import { showHome, startGame } from './ui/views.js';
+import { startAiGame } from './ui/ai-view.js';
 import { createMenu } from './ui/menu.js';
 import * as audio from './audio/blip.js';
 import { t } from './i18n/es.js';
@@ -23,6 +24,8 @@ const menu = createMenu({ el: $('menu'), app: $('app'), store, getGame: () => (v
 let index = null;
 const stories = new Map();
 const fetchJson = (path) => fetch(path).then((r) => (r.ok ? r.json() : Promise.reject(new Error(`${r.status} ${path}`))));
+let aiIndex = null;
+const loadAiIndex = () => (aiIndex ||= fetchJson('stories/ai/index.json').then((j) => j.stories).catch((e) => { aiIndex = null; throw e; }));
 const loadIndex = () => (index ||= fetchJson('stories/index.json').then((j) => j.stories).catch((e) => { index = null; throw e; }));
 function loadStory(id) {
   if (!stories.has(id)) {
@@ -41,11 +44,17 @@ async function route() {
   view = null;
   menu.close();
   if (r.name === 'new') return location.replace(hashFor({ name: 'play', storyId: r.storyId, sessionId: newSessionId() }));
+  if (r.name === 'ai-new') return location.replace(hashFor({ name: 'ai', storyId: r.storyId, sessionId: newSessionId() }));
   try {
     if (r.name === 'home') {
-      const list = await loadIndex();
+      const [list, aiList] = await Promise.all([loadIndex(), loadAiIndex().catch(() => [])]);
       if (my !== run) return;
-      view = showHome({ terminal, store, storage, stories: list, loadStory, isUnlocked: () => unlocked });
+      view = showHome({ terminal, store, storage, stories: list, aiStories: aiList, loadStory, isUnlocked: () => unlocked });
+    } else if (r.name === 'ai') {
+      const story = (await loadAiIndex()).find((s) => s.id === r.storyId);
+      if (!story) throw new Error('historia IA desconocida: ' + r.storyId);
+      if (my !== run) return;
+      view = startAiGame({ terminal, storage, story, sessionId: r.sessionId });
     } else {
       const story = await loadStory(r.storyId);
       if (my !== run) return;
@@ -70,7 +79,7 @@ $('screen').addEventListener('pointerdown', () => terminal.skip());
 $('menu-btn').addEventListener('click', () => { audio.click(); menu.toggle(); });
 document.addEventListener('keydown', (e) => {
   if (e.key === 'Escape') return menu.toggle();
-  if (menu.isOpen()) return;
+  if (menu.isOpen() || e.target.tagName === 'INPUT') return; // escribiendo en el modo IA
   if ((e.key === ' ' || e.key === 'Enter') && terminal.isTyping()) { e.preventDefault(); terminal.skip(); return; }
   if (/^[1-4]$/.test(e.key)) {
     const b = $('options').querySelectorAll('button[data-option-id]')[+e.key - 1];

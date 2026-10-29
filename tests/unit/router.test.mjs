@@ -49,3 +49,11 @@ test('hashFor y parseHash son ida y vuelta (log con caracteres especiales)', () 
   const route = { name: 'play', storyId: 'x', sessionId: 'abc12345', log: 'a+b/c=d.e' };
   assert.deepEqual(parseHash(hashFor(route)), route);
 });
+
+test('modo IA: nueva partida y partida', () => {
+  assert.deepEqual(parseHash('#/ai/carguero-argo'), { name: 'ai-new', storyId: 'carguero-argo' });
+  assert.deepEqual(parseHash('#/ai/carguero-argo/abc12345'), { name: 'ai', storyId: 'carguero-argo', sessionId: 'abc12345' });
+  assert.deepEqual(parseHash('#/ai/carguero-argo/MAL'), { name: 'home' });
+  assert.equal(hashFor({ name: 'ai-new', storyId: 'x' }), '#/ai/x');
+  assert.equal(hashFor({ name: 'ai', storyId: 'x', sessionId: 'abc12345' }), '#/ai/x/abc12345');
+});

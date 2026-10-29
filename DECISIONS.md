@@ -68,7 +68,7 @@ Decisiones tomadas donde el spec era ambiguo o no decía nada, agrupadas por ár
 - El silencio vive solo en memoria en `blip.js`; su persistencia es el ajuste `sound` de `terminal:v1:settings` (main.js y el menú llaman a `setMuted`). No hay clave `terminal:muted`.
 - El `AudioContext` (`globalThis.AudioContext || globalThis.webkitAudioContext`) se crea únicamente en `unlock()`, en el primer gesto del usuario; antes de ese gesto `blip`/`tone` no hacen nada (ni se encola sonido ni Chrome avisa en consola).
 - Polifonía: máx. 6 blips de tecleo vivos y mínimo 20 ms entre blips; los efectos no cuentan para ese tope.
-- Blip (cambiado a petición del usuario, para sonar a ordenador de los 80): square a 900-1300 Hz con variación ±8 % y una pequeña caída de tono, 35-45 ms, ataque 2 ms, decay exponencial, ganancia 0,09. Lo que teclea el jugador usa `keypress()`: un golpe grave (~220→90 Hz) más un chasquido agudo corto, como una tecla mecánica. El eco del jugador se pinta en verde claro nítido (`--fg-echo`), sin el brillo difuso. `blip(ch)` ignora cadenas vacías o de solo espacios; si no recibe un string, suena.
+- Blip (cambiado a petición del usuario): imita el altavoz de 1 bit del Apple II. Es una onda cuadrada a 1000 Hz fija, de 25 ms y amplitud plana (solo 2 ms de rampa contra chasquidos), con ganancia 0,07. Suena siempre igual, sin variación aleatoria. Lo que teclea el jugador usa `keypress()`, que imita un teclado mecánico: un clic de ruido blanco filtrado en paso banda a 3,5 kHz, un golpe grave senoidal de 150→70 Hz y el tope de la tecla (ruido a 1,2 kHz 12 ms después). El búfer de ruido se genera una sola vez, así que también suena siempre igual; sin `createBuffer` solo suena el golpe. El eco del jugador se pinta en verde claro nítido (`--fg-echo`), sin el brillo difuso. `blip(ch)` ignora cadenas vacías o de solo espacios.
 - click: square 600 Hz, 50 ms; `navigator.vibrate(5)` solo si no está silenciado y existe.
 - optionsAppear: dos blips (2000 y 2400 Hz) separados 70 ms. goodEnding: arpegio triangle 523, 659, 784 y 1047 Hz cada 120 ms. badEnding: sawtooth de 220 a 55 Hz en 0,7 s.
 
@@ -134,6 +134,16 @@ Decisiones tomadas donde el spec era ambiguo o no decía nada, agrupadas por ár
 ---
 
 # Fase 2: multijugador P2P (no implementado)
+
+## Modo IA (añadido a petición del usuario)
+
+- La historia es un prompt: `stories/ai/index.json` (catálogo aparte con `id`, `title`, `tagline`, `intro[]` y `prompt`), para no mezclarlo con el validador de grafos. Rutas: `#/ai/<historia>` crea la sesión y `#/ai/<historia>/<sesión>` es la partida.
+- Motor: [WebLLM](https://github.com/mlc-ai/web-llm) 0.2.85, importado con versión fija desde jsDelivr solo al entrar en el modo IA, en el hilo principal (bastan las llamadas asíncronas a WebGPU). Es la única excepción a «sin dependencias ni peticiones externas»: el modo clásico sigue sin ellas.
+- Modelos a elegir al empezar: Qwen2.5-1.5B-Instruct (~1 GB, por defecto) o Qwen2.5-3B-Instruct (~2 GB). La librería descarga los pesos de Hugging Face y los guarda en la caché del navegador; las siguientes cargas son locales. Necesita WebGPU: si no hay, se avisa y no se descarga nada.
+- Formato: el modelo responde en JSON forzado por esquema (`response_format: json_object` + `schema`): `{texto[], opciones[], final{tipo: ninguno|bueno|malo, titulo}}`. `parseReply` lo sanea: máximo 4 opciones, 48 caracteres y sin duplicados. Si no es JSON, el texto se muestra tal cual con la opción «Continuar».
+- El jugador elige una opción (1-4) o escribe libremente en una línea `> ` con sonido de teclado mecánico. La historia cambia según decida el modelo. Las acciones pasan por `LocalTransport` (`{type: 'SAY'}`), igual que el modo clásico.
+- Contexto: se envían el prompt de sistema, la apertura y los últimos 10 mensajes (la ventana es de 4096 tokens). En partidas muy largas el modelo puede olvidar detalles antiguos.
+- Persistencia: la conversación completa va en `terminal:v1:ai:<sesión>`. No se puede reconstruir con un log porque el modelo no es determinista, así que no hay respaldo `?l=` en la URL. Al recargar se pinta la conversación al instante y sin volver a llamar al modelo. Los finales del modo IA no cuentan en «Finales: x/y» y estas partidas no salen en CONTINUAR.
 
 ## Qué ya está hecho
 
